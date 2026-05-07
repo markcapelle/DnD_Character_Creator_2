@@ -1,0 +1,31 @@
+#dice-visuals {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.die {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background: #222;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.5);
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+}
+.die.roll {
+    animation: roll 0.4s ease;
+}
+@keyframes roll {
+    0%   { transform: rotateX(0deg) rotateY(0deg) scale(1); }
+    25%  { transform: rotateX(90deg) rotateY(45deg) scale(1.1); }
+    50%  { transform: rotateX(180deg) rotateY(90deg) scale(0.9); }
+    75%  { transform: rotateX(270deg) rotateY(135deg) scale(1.05); }
+    100% { transform: rotateX(360deg) rotateY(180deg) scale(1); }
+}

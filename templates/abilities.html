@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <title>Character Creation</title>
+</head>
+<body>
+
+<div class="character-sheet">
+
+    <!-- HEADER -->
+    <div class="sheet-header">
+        <div class="identity">
+            <h1>Create Your Character</h1>
+        </div>
+    </div>
+
+    <div class="sheet-body">
+
+        <!-- LEFT SIDE: RACE + CLASS -->
+        <div class="details">
+
+            <div class="box">
+                <h3>Select Race</h3>
+                <label for="race">Race:</label>
+                <select id="race" onchange="selectRace(this.value)">
+                    <option value="">-- choose race --</option>
+                    {% for key, race in races.items() %}
+                        <option value="{{ key }}">{{ race.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <p id="race-info"></p>
+            </div>
+
+            <div class="box">
+                <h3>Select Class</h3>
+                <label for="class">Class:</label>
+                <select id="class" onchange="selectClass(this.value)">
+                    <option value="">-- choose class --</option>
+                    {% for key, cls in classes.items() %}
+                        <option value="{{ key }}">{{ cls.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <p id="class-info"></p>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE: ABILITIES -->
+        <div class="box">
+            <h3>Set Abilities</h3>
+            <p>Allocate skillpoints to Abilities</p>
+            <p>Points remaining: <span id="points">{{ character.points_pool }}</span></p>
+
+            {% set order = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] %}
+            
+            {% for ability in order %}
+            <div class="ability">
+                <strong>{{ ability|capitalize }}</strong>
+                
+                <div class="score" id="{{ ability }}">
+                    {{ character.abilities[ability] }}
+                </div>
+                
+                <div class="mod">
+                    <span id="{{ ability }}-mod" class="race-mod"></span>
+                </div>
+                
+                <button onclick="change('{{ ability }}', 'increase')">+</button>
+                <button onclick="change('{{ ability }}', 'decrease')">-</button>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <div style="text-align:center; margin-top:1rem;">
+        <button id="abilities-next-button" disabled class="next-disabled">Next</button>
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/audio.js') }}"></script>
+<script src="{{ url_for('static', filename='js/character_build.js') }}"></script>
+<script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
+
+</body>
+</html>

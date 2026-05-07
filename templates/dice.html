@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dice_animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <title>Dice Box</title>
+</head>
+<body>
+
+<div class="character-sheet">
+
+    <!-- HEADER -->
+    <div class="sheet-header">
+        <div class="identity">
+            <h1>Dice Box</h1>
+        </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="sheet-body">
+
+        <!-- LEFT SIDE: DICE CONTROLS -->
+        <div class="details">
+
+            <div class="box">
+                <h3>Roll Settings</h3>
+
+                <label for="dice-count">Number of dice:</label>
+                <select id="dice-count">
+                    {% for i in range(1, 11) %}
+                        <option value="{{ i }}">{{ i }}</option>
+                    {% endfor %}
+                </select>
+
+                <div style="margin-top: 1rem;">
+                    <button onclick="rollDice(4)">d4</button>
+                    <button onclick="rollDice(6)">d6</button>
+                    <button onclick="rollDice(8)">d8</button>
+                    <button onclick="rollDice(10)">d10</button>
+                    <button onclick="rollDice(12)">d12</button>
+                    <button onclick="rollDice(20)">d20</button>
+                    <button onclick="rollDice(100)">d100</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE: RESULTS -->
+        <div class="box" style="flex: 2 1 400px; text-align:center;">
+
+            <h3>Results</h3>
+
+            <div id="dice-output" style="font-size:1.3rem; margin-bottom:1rem;"></div>
+
+            <div id="dice-visuals"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/audio.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dice.js') }}"></script>
+
+</body>
+</html>

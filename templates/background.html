@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <title>Background</title>
+</head>
+<body>
+
+<div class="character-sheet">
+
+    <!-- HEADER -->
+    <div class="sheet-header">
+        <div class="identity">
+            <h1>Select Background</h1>
+        </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="sheet-body">
+
+        <!-- LEFT SIDE: BACKGROUND SELECTOR -->
+        <div class="details">
+
+            <div class="box">
+                <h3>Choose a Background</h3>
+
+                <label for="backgroundSelect">Background:</label>
+                <select id="backgroundSelect" onchange="updateBackgroundInfo()">
+                    <option value="">-- Select Background --</option>
+
+                    {% for key, bg in backgrounds.items() %}
+                        <option value="{{ key }}">{{ bg.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE: BACKGROUND INFO -->
+        <div class="box" style="flex: 2 1 400px;">
+
+            <h3>Background Details</h3>
+
+            <h4>Description</h4>
+            <p id="bgDescription"></p>
+
+            <h4>Proficiencies Granted</h4>
+            <ul id="bgProficiencies"></ul>
+
+        </div>
+
+    </div>
+
+    <!-- BUTTONS -->
+    <div style="text-align:center; margin-top:1rem;">
+        <button id="background-back-button">Back</button>
+        <button id="background-next-button" disabled class="next-disabled">Next</button>
+    </div>
+
+</div>
+
+<script>
+    const BACKGROUNDS = JSON.parse('{{ backgrounds | tojson | safe }}');
+</script>
+
+<script src="{{ url_for('static', filename='js/background.js') }}"></script>
+<script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,296 @@
+.next-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.next-enabled {
+    opacity: 1;
+    cursor: pointer;
+}
+
+
+
+
+#hitdice-tracker {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.hitdie-box {
+    width: 22px;
+    height: 22px;
+    border: 2px solid black;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.hitdie-box.active {
+    background-color: green;
+}
+
+#deathroll-success,
+#deathroll-fail {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.deathroll-box {
+    width: 22px;
+    height: 22px;
+    border: 2px solid black;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.deathroll-box.success.active {
+    background-color: green;
+}
+
+.deathroll-box.fail.active {
+    background-color: crimson;
+}
+
+
+
+
+
+
+#spellslots-section {
+    margin-top: 20px;
+}
+
+.spellslot-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.spellslot-box {
+    width: 22px;
+    height: 22px;
+    border: 2px solid black;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.spellslot-box.active {
+    background-color: blue;
+}
+
+
+
+
+
+
+#spell-container {
+    width: 600px;
+    margin: auto;
+}
+
+.spell-page {
+    border: 2px solid black;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    
+    background:
+    linear-gradient(
+      #f7f1e1,
+      #efe3c5
+    );
+
+    background-blend-mode: multiply;
+}
+
+
+
+
+
+
+
+* {
+  box-sizing: border-box;
+  font-family: "Garamond", "Times New Roman", serif;
+}
+
+body {
+  background: #f2efe9;
+  margin: 0;
+  padding: 1rem;
+}
+
+.character-sheet {
+  max-width: 900px;
+  margin: auto;
+  background: #fffdf8;
+  border: 2px solid #3a2f1d;
+  padding: 1rem;
+
+  
+  background:
+    linear-gradient(
+      #f7f1e1,
+      #efe3c5
+    );
+
+  background-blend-mode: multiply;
+
+}
+
+/* Header */
+.sheet-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  border-bottom: 2px solid #3a2f1d;
+  padding-bottom: 0.5rem;
+  text-align: center;
+}
+
+.identity h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.meta {
+  display: flex;
+  gap: 1rem;
+}
+
+.meta div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #3a2f1d;
+  min-width: 60px;
+  padding: 0.25rem;
+}
+
+/* Body */
+.sheet-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Top references */
+.top-refs {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.top-refs .box {
+  flex: 1 1 0;
+  text-align: center;
+}
+
+/* Abilities */
+.abilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 1 1 250px;
+}
+
+.ability {
+  flex: 1 1 80px;
+  border: 2px solid #3a2f1d;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.ability strong {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.score {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.mod {
+  font-size: 0.9rem;
+}
+
+/* Details */
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 2 1 300px;
+}
+
+.box {
+  border: 2px solid #3a2f1d;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.box h3 {
+  margin-top: 0.5rem;
+  border-bottom: 1px solid #3a2f1d;
+}
+
+/* Responsive tweaks */
+@media (max-width: 500px) {
+  .top-refs .box {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .sheet-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .meta {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 900px) {
+  .top-refs {
+    flex-wrap: wrap;
+  }
+
+  .top-refs .box {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+}
+
+
+
+
+
+
+ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+}
+
+li {
+  margin-bottom: 0.25rem;
+}
+
+.hp-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+button {
+  font-family: inherit;
+  border: 1px solid #3a2f1d;
+  background: #f2efe9;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+}
