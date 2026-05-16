@@ -1,0 +1,200 @@
+{% macro show_mod(value) %}
+    {{ "+" ~ value if value >= 0 else value }}
+{% endmacro %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <title>Character Sheet</title>
+</head>
+<body>
+
+    <div class="character-sheet">
+
+        <!-- Header -->
+        <header class="sheet-header">
+            <div class="identity">
+                <h1>Character Sheet</h1>
+                <p>{{ sheet.race_name }} · {{ sheet.class_name }}</p>
+            </div>
+        </header>
+
+        <!-- Main body -->
+        <div class="sheet-body">
+
+            <!-- TOP: Refs -->
+            <div class="top-refs">
+                <div class="box">
+                    <h3>Initiative</h3>
+                    <p>{{ show_mod(sheet.ability_modifiers.dexterity) }}</p>
+                </div>
+                <div class="box">
+                    <h3>Passive Perception</h3>
+                    <p>{{ 10 + sheet.ability_modifiers.wisdom }}</p>
+                </div>
+                <div class="box">
+                    <h3>Proficiency</h3>
+                    <p>{{ show_mod(sheet.proficiency) }}</p>
+                </div>
+                <div class="box">
+                    <!-- dice button -->
+                    <button id="dice-button" onclick="openDice()">Dice</button>
+                </div>
+            </div>
+
+            <!-- LEFT: Abilities -->
+            {% set order = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] %}
+            <section class="abilities">
+                {% for ability in order %}
+                <div class="ability">
+                    <strong>{{ ability|upper }}</strong>
+
+                    <span class="score">
+                        {{ sheet.abilities[ability] }}
+                    </span>
+
+                    <span class="mod">
+                        {{ show_mod(sheet.ability_modifiers[ability]) }}
+                    </span>
+                </div>
+                {% endfor %}
+            </section>
+
+            <!-- RIGHT: Details -->
+            <section class="details">
+                <div class="box">
+                    <h3>Hit Points:</h3>
+                    <div class="hp-controls">
+                        <button onclick="changeHP('down')">-</button>
+                        <span id="hp-display">{{ sheet.current_hp }} / {{ sheet.max_hp }}</span>
+                        <button onclick="changeHP('up')">+</button>
+                    </div>
+                    <div>
+                        <h3>Hit Die:</h3>
+                        <h4>{{ sheet.hit_die }}</h4>
+                    </div>
+                    <h3>Hit Dice Used:</h3>
+                    <div id="hitdice-tracker" data-used="{{ sheet.hit_dice_used | default(0) }}">
+                        <div class="hitdie-box" data-index="1"></div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3>Death Saves:</h3>
+                    <div id="deathroll-success" data-used="{{ sheet.death_rolls_success }}">
+                        <p>Successes:</p>
+                        <div class="deathroll-box success" data-index="1"></div>
+                        <div class="deathroll-box success" data-index="2"></div>
+                        <div class="deathroll-box success" data-index="3"></div>
+                    </div>
+                    <div id="deathroll-fail" data-used="{{ sheet.death_rolls_fails }}">
+                        <p>Fails:</p>
+                        <div class="deathroll-box fail" data-index="1"></div>
+                        <div class="deathroll-box fail" data-index="2"></div>
+                        <div class="deathroll-box fail" data-index="3"></div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3>Skills</h3>
+                    <ul>
+                        {% for skill, bonus in sheet.skills.items() %}
+                            <li>
+                                <strong>{{ skill.replace("_", " ")|capitalize }}:</strong>
+                                {{ show_mod(bonus) }}
+                                {% if sheet.skill_proficiencies[skill] %}(Proficient){% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Race features -->
+        <section class="box">
+            <h3>Race Features:</h3>
+            <ul>
+                {% for trait in sheet.traits %}
+                <li>{{ trait }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- Class features -->
+        <section class="box">
+            <h3>Class Features</h3>
+            <ul>
+                {% for feature in sheet.class_features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- Spellcasting -->
+        {% if sheet.spellcaster %}
+            <section class="box">
+                <h3>Spellcasting</h3>
+                <p><strong>Ability:</strong> {{ sheet.spellcasting_ability|capitalize }}</p>
+                <p><strong>Save DC:</strong> {{ sheet.spell_save_dc }}</p>
+                <p><strong>Attack Bonus:</strong> +{{ sheet.spell_attack_bonus }}</p>
+
+                <div id="spellcasting-data"
+                    data-spellcaster="{{ 'True' if sheet.spellcaster else 'False' }}"
+                    data-spellbook="{{ sheet.spellbook }}"
+                    data-primary="{{ sheet.primary_abilities }}">
+                </div>
+                <div id="spellslots-section">
+                    <h3>Spell Slots</h3>
+                    <div class="spellslot-row">
+                        {% for i in range(sheet.max_spell_slots) %}
+                            <div class="spellslot-box" data-index="{{ i + 1 }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button id="open-spellbook" style="display:none;">Spellbook</button>
+            </section>
+        {% endif %}
+
+        <!-- Descriptions -->
+        <section class="box">
+            <h3>Descriptions</h3>
+            <p><strong>Race:</strong> {{ sheet.description.race }}</p>
+            <p><strong>Class:</strong> {{ sheet.description.class }}</p>
+        </section>
+
+        <!-- Background -->
+        <section class="box">
+            <h3>Background</h3>
+            <p><strong>{{ sheet.background_name }}</strong></p>
+            <p>{{ sheet.background_description }}</p>
+            <ul>
+                {% for prof in sheet.background_proficiencies %}
+                <li>{{ prof.replace("_", " ")|capitalize }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+    </div>
+
+
+
+    <button id="reset-character">Reset Character</button>
+
+    <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/character_management.js') }}"></script>
+</body>
+</html>
