@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationship: one user -> many characters
-    characters = db.relationship("Character", backref="user", lazy=True)
+    #characters = db.relationship("Character", backref="user", lazy=True) added this prematurely, remove for the moment
 
     def __repr__(self):
         return f"<User {self.email}>"
