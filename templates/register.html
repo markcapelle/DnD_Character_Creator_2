@@ -18,6 +18,9 @@
 <body>
     <h1>Register</h1>
     
+    {% if error %}
+        {{ error }}
+    {% endif %}
     <form action="/register" method="POST">
         <label>Email:</label><br>
         <input type="email" name="email" required><br><br>
@@ -30,6 +33,10 @@
 
         <button type="submit">Register</button>
     </form>
-    
+
+    <form action="/login" method="GET">
+        <button type="submit">Back</button>
+    </form>
+
 </body>
 </html>

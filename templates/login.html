@@ -16,7 +16,32 @@
     <title>Login</title>
 </head>
 <body>
+
+    <!-- Conditional to indicate user registration was success -->
+    {% if request.args.get('registered') %}
+        <p>User registration complete!</p>
+    {% endif %}
+
     <h1>Login</h1>
     
+    {% if error %}
+        {{ error }}
+    {% endif %}
+    <form action="/login" method="POST">
+        <label>Email:</label><br>
+        <input type="email" name="email" required><br><br>
+
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br><br>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <br><br>
+
+    <form action="/register" method="GET">
+        <button type="submit">Register</button>
+    </form>
+
 </body>
 </html>

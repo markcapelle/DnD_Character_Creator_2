@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User # Import all models
 from dotenv import load_dotenv
 import os
@@ -24,10 +24,33 @@ with app.app_context():
 # ROUTING
 @app.route("/") # Default Route
 def home():
-    return render_template("register.html")
+    return render_template("login.html")
+
+@app.route("/login", methods=["GET", "POST"]) # Login Route - should be the first page users arrive on upon opening the app
+def login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        # Look up user
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            return render_template("login.html", error="User email not recognised")
+
+        # Check password
+        if not check_password_hash(user.password_hash, password):
+            return render_template("login.html", error="Password is incorrect")
+
+        # Log user in
+        session["user_id"] = user.id
+
+        return redirect("/index")
+
+    return render_template("login.html")
 
 
-@app.route("/register", methods=["GET", "POST"])
+@app.route("/register", methods=["GET", "POST"]) # User Registration Route
 def register():
     if request.method == "POST":
         email = request.form.get("email")
@@ -35,7 +58,7 @@ def register():
         pw2 = request.form.get("password2")
 
         if pw1 != pw2:
-            return "Passwords do not match"
+            return render_template("register.html", error="Passwords do not match")
 
         # Create user
         new_user = User(
@@ -46,12 +69,15 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        return "User registered!"
+        return redirect("/login?registered=1")
 
     return render_template("register.html")
 
 
-
+@app.route("/index")
+def index():
+    # to do: fetch characters for session["user_id"]
+    return render_template("index.html")
 
 
 
