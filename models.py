@@ -32,7 +32,7 @@ class User(db.Model, UserMixin):
 class Character(db.Model):
     __tablename__ = "characters"
 
-    id = db.Column(db.String(36), primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
     user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
 
     name = db.Column(db.String(100), nullable=False)
@@ -45,7 +45,8 @@ class Character(db.Model):
 class CharacterAbilities(db.Model):
     __tablename__ = "character_abilities"
 
-    character_id = db.Column(db.String(36), db.ForeignKey("characters.id"), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    character_id = db.Column(db.String(36), db.ForeignKey("characters.id"), unique=True)
 
     strength = db.Column(db.Integer)
     dexterity = db.Column(db.Integer)
@@ -54,7 +55,7 @@ class CharacterAbilities(db.Model):
     wisdom = db.Column(db.Integer)
     charisma = db.Column(db.Integer)
 
-    character = db.relationship("Character", backref="abilities")
+    character = db.relationship("Character", backref=db.backref("abilities", lazy=True))
 
 class CharacterSkill(db.Model):
     __tablename__ = "character_skills"
@@ -64,13 +65,18 @@ class CharacterSkill(db.Model):
     skill_id = db.Column(db.Integer, db.ForeignKey("reference_skills.id"), nullable=False)
     is_proficient = db.Column(db.Boolean, default=False)
 
-    character = db.relationship("Character", backref="skills")
-    skill = db.relationship("ReferenceSkill")
+    __table_args__ = (
+        db.UniqueConstraint("character_id", "skill_id", name="uq_character_skill"),
+    )
+
+    character = db.relationship("Character", backref=db.backref("skills", lazy=True))
+    reference_skill = db.relationship("ReferenceSkill", lazy=True)
 
 class CharacterState(db.Model):
     __tablename__ = "character_states"
 
-    character_id = db.Column(db.String(36), db.ForeignKey("characters.id"), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    character_id = db.Column(db.String(36), db.ForeignKey("characters.id"), unique=True)
 
     current_hp = db.Column(db.Integer)
     hit_dice_remaining = db.Column(db.Integer)
@@ -78,7 +84,7 @@ class CharacterState(db.Model):
     deathroll_successes = db.Column(db.Integer)
     deathroll_failures = db.Column(db.Integer)
 
-    character = db.relationship("Character", backref="state")
+    character = db.relationship("Character", backref=db.backref("state", lazy=True))
 
 class CharacterNotebook(db.Model):
     __tablename__ = "character_notebooks"
@@ -92,7 +98,8 @@ class CharacterNotebook(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    character = db.relationship("Character", backref="notes")
+    character = db.relationship("Character", backref=db.backref("notes", lazy=True))
+
 
 # ************************************************************************************************************
 # ************************************************************************************************************
