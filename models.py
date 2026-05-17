@@ -36,11 +36,18 @@ class Character(db.Model):
     user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
 
     name = db.Column(db.String(100), nullable=False)
-    race = db.Column(db.String(50))
+    
+    race_id = db.Column(db.Integer, db.ForeignKey("reference_races.id"))
+    race = db.relationship("ReferenceRace")
+    
     char_class = db.Column(db.String(50))
     hit_die = db.Column(db.String(10))
     max_hp = db.Column(db.Integer)
-    background_id = db.Column(db.String(50))  # simple text for now
+
+    background_id = db.Column(db.Integer, db.ForeignKey("reference_backgrounds.id"))
+    background = db.relationship("ReferenceBackground")
+
+
 
 class CharacterAbilities(db.Model):
     __tablename__ = "character_abilities"
@@ -109,10 +116,194 @@ class CharacterNotebook(db.Model):
 # Reference Models
 # ************************************************************************************************************
 
-class ReferenceSkill(db.Model):
+class ReferenceSkill(db.Model): # Skills - reference model
     __tablename__ = "reference_skills"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
-    ability = db.Column(db.String(20), nullable=False)  # e.g., "dexterity", "wisdom"
+    ability = db.Column(db.String(20), nullable=False) 
 
+# *************************************************
+
+class ReferenceRace(db.Model): # Races - base model
+    __tablename__ = "reference_races"
+
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(50), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+
+    traits = db.relationship("RaceTrait", backref="race", lazy=True, cascade="all, delete-orphan")
+    modifiers = db.relationship("RaceModifier", backref="race", lazy=True, cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<Race {self.name}>"
+
+class RaceTrait(db.Model): # Races - traits model
+    __tablename__ = "race_traits"
+
+    id = db.Column(db.Integer, primary_key=True)
+    race_id = db.Column(db.Integer, db.ForeignKey("reference_races.id"), nullable=False)
+    trait_text = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+        return f"<RaceTrait {self.trait_text[:20]}>"
+
+class RaceModifier(db.Model): # Races - ability modifiers model
+    __tablename__ = "race_modifiers"
+
+    id = db.Column(db.Integer, primary_key=True)
+    race_id = db.Column(db.Integer, db.ForeignKey("reference_races.id"), nullable=False)
+    ability = db.Column(db.String(20), nullable=False) 
+    value = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f"<RaceModifier {self.ability} +{self.value}>"
+
+# *************************************************
+
+class ReferenceBackground(db.Model): # Backgrounds - base model
+    __tablename__ = "reference_backgrounds"
+
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(50), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+
+    proficiencies = db.relationship(
+        "BackgroundProficiency",
+        backref="background",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+    def __repr__(self):
+        return f"<Background {self.name}>"
+
+class BackgroundProficiency(db.Model): # Backgrounds - proficiencies model
+    __tablename__ = "background_proficiencies"
+
+    id = db.Column(db.Integer, primary_key=True)
+    background_id = db.Column(db.Integer, db.ForeignKey("reference_backgrounds.id"), nullable=False)
+
+    proficiency_type = db.Column(db.String(20), nullable=False)  
+
+    def __repr__(self):
+        return f"<BackgroundProf {self.proficiency_type}: {self.proficiency_value}>"
+
+# *************************************************
+
+class ReferenceClass(db.Model): # Classes - base model
+    __tablename__ = "reference_classes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(50), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+
+    base_hp = db.Column(db.Integer, nullable=False)
+    hit_die = db.Column(db.String(10), nullable=False)
+
+    skill_choices = db.Column(db.Integer, nullable=False)  # how many skills the class can choose
+
+    spellcaster = db.Column(db.Boolean, default=False)
+    spellbook = db.Column(db.String(50))  # link to spellbook.class
+    spellslots = db.Column(db.Integer, nullable=True)  # only for full casters
+
+    # Relationships
+    features = db.relationship(
+        "ClassFeature",
+        backref="class_ref",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+    skills = db.relationship(
+        "ClassSkill",
+        backref="class_ref",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+    abilities = db.relationship(
+        "ClassAbility",
+        backref="class_ref",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+    saves = db.relationship(
+        "ClassSave",
+        backref="class_ref",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+    def __repr__(self):
+        return f"<Class {self.name}>"
+
+class ClassFeature(db.Model): # Classes - class features
+    __tablename__ = "class_features"
+
+    id = db.Column(db.Integer, primary_key=True)
+    class_id = db.Column(db.Integer, db.ForeignKey("reference_classes.id"), nullable=False)
+
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+        return f"<ClassFeature {self.name}>"
+
+class ClassSkill(db.Model): # Classes - available skills
+    __tablename__ = "class_skills"
+
+    id = db.Column(db.Integer, primary_key=True)
+    class_id = db.Column(db.Integer, db.ForeignKey("reference_classes.id"), nullable=False)
+
+    skill = db.Column(db.String(50), nullable=False)  # e.g., "Athletics"
+
+    def __repr__(self):
+        return f"<ClassSkill {self.skill}>"
+
+class ClassAbility(db.Model): # Classes - main class abilities
+    __tablename__ = "class_abilities"
+
+    id = db.Column(db.Integer, primary_key=True)
+    class_id = db.Column(db.Integer, db.ForeignKey("reference_classes.id"), nullable=False)
+
+    ability = db.Column(db.String(20), nullable=False)  # e.g., "strength"
+
+    def __repr__(self):
+        return f"<ClassAbility {self.ability}>"
+
+class ClassSave(db.Model): # Classes - save roll abilities
+    __tablename__ = "class_saves"
+
+    id = db.Column(db.Integer, primary_key=True)
+    class_id = db.Column(db.Integer, db.ForeignKey("reference_classes.id"), nullable=False)
+
+    ability = db.Column(db.String(20), nullable=False)  # e.g., "constitution"
+
+    def __repr__(self):
+        return f"<ClassSave {self.ability}>"
+
+# *************************************************
+
+class ReferenceSpell(db.Model): # Spellbook
+    __tablename__ = "reference_spellbook"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    class_key = db.Column(db.String(50), nullable=False)
+    # e.g., "wizard", "cleric", "druid", "paladin"
+
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+
+    level = db.Column(db.Integer, nullable=False)  # 0 = cantrip
+    casting_time = db.Column(db.String(50), nullable=False)
+    components = db.Column(db.String(100), nullable=False)
+    duration = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        return f"<Spell {self.name} (Level {self.level})>"
