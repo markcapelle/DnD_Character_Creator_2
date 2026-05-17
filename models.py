@@ -42,8 +42,8 @@ class Character(db.Model):
     max_hp = db.Column(db.Integer)
     background_id = db.Column(db.String(50))  # simple text for now
 
-class Abilities(db.Model):
-    __tablename__ = "abilities"
+class CharacterAbilities(db.Model):
+    __tablename__ = "character_abilities"
 
     character_id = db.Column(db.String(36), db.ForeignKey("characters.id"), primary_key=True)
 
@@ -56,19 +56,19 @@ class Abilities(db.Model):
 
     character = db.relationship("Character", backref="abilities")
 
-class Skill(db.Model):
-    __tablename__ = "skills"
+class CharacterSkill(db.Model):
+    __tablename__ = "character_skills"
 
     id = db.Column(db.Integer, primary_key=True)
     character_id = db.Column(db.String(36), db.ForeignKey("characters.id"), nullable=False)
-
-    skill_name = db.Column(db.String(50), nullable=False)
+    skill_id = db.Column(db.Integer, db.ForeignKey("reference_skills.id"), nullable=False)
     is_proficient = db.Column(db.Boolean, default=False)
 
     character = db.relationship("Character", backref="skills")
+    skill = db.relationship("ReferenceSkill")
 
-class State(db.Model):
-    __tablename__ = "states"
+class CharacterState(db.Model):
+    __tablename__ = "character_states"
 
     character_id = db.Column(db.String(36), db.ForeignKey("characters.id"), primary_key=True)
 
@@ -80,8 +80,8 @@ class State(db.Model):
 
     character = db.relationship("Character", backref="state")
 
-class Notebook(db.Model):
-    __tablename__ = "notebooks"
+class CharacterNotebook(db.Model):
+    __tablename__ = "character_notebooks"
 
     id = db.Column(db.Integer, primary_key=True)
     character_id = db.Column(db.String(36), db.ForeignKey("characters.id"), nullable=False)
@@ -97,4 +97,15 @@ class Notebook(db.Model):
 # ************************************************************************************************************
 # ************************************************************************************************************
 
+
+# ************************************************************************************************************
+# Reference Models
+# ************************************************************************************************************
+
+class ReferenceSkill(db.Model):
+    __tablename__ = "reference_skills"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    ability = db.Column(db.String(20), nullable=False)  # e.g., "dexterity", "wisdom"
 
