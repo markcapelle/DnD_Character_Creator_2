@@ -19,17 +19,36 @@
     <h1>Index</h1>
     <h2>Welcome, {{ user.email }}</h2>
 
+    <button id="new-character-btn">New Character</button>
+    
     <!-- Display characters -->
-    {% if characters %}
-        <h3>Your Characters</h3>
-        <ul>
-            {% for c in characters %}
-                <li>{{ c.name }} — {{ c.race.name}} - {{ c.class_ref.name }}</li>
+    <table id="character-table" class="character-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Race</th>
+                <th>Class</th>
+                <th>Background</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for character in characters %}
+            <tr>
+                <td>{{ character.name }}</td>
+                <td>{{ character.race.name if character.race else "-" }}</td>
+                <td>{{ character.class_ref.name if character.class_ref else "-" }}</td>
+                <td>{{ character.background.name if character.background else "-" }}</td>
+
+                <td class="actions">
+                    <button class="load-btn">Load</button>
+                    <button class="delete-btn">Delete</button>
+                </td>
+            </tr>
             {% endfor %}
-        </ul>
-    {% else %}
-        <p>You have no characters yet.</p>
-    {% endif %}
+        </tbody>
+    </table>
 
     <form action="/logout" method="get">
         <button type="submit">Logout</button>
