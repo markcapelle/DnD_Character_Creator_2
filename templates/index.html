@@ -34,25 +34,27 @@
         </thead>
 
         <tbody>
-            {% for character in characters %}
-            <tr>
-                <td>{{ character.name }}</td>
-                <td>{{ character.race.name if character.race else "-" }}</td>
-                <td>{{ character.class_ref.name if character.class_ref else "-" }}</td>
-                <td>{{ character.background.name if character.background else "-" }}</td>
+        {% for character in characters %}
+        <tr data-character-id="{{ character.id }}">
+            <td>{{ character.name }}</td>
+            <td>{{ character.race.name if character.race else "-" }}</td>
+            <td>{{ character.class_ref.name if character.class_ref else "-" }}</td>
+            <td>{{ character.background.name if character.background else "-" }}</td>
 
-                <td class="actions">
-                    <button class="load-btn">Load</button>
-                    <button class="delete-btn">Delete</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
+            <td class="actions">
+                <button class="load-btn">Load</button>
+                <button class="delete-btn">Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+</tbody>
     </table>
 
     <form action="/logout" method="get">
         <button type="submit">Logout</button>
     </form>
+
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 
 </body>
 </html>

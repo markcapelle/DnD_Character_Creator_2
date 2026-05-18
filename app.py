@@ -96,6 +96,29 @@ def logout():
     return redirect("/login")
 
 
+@app.route("/delete_character/<character_id>", methods=["DELETE"])
+def delete_character(character_id):
+    from models import (
+        Character, CharacterAbilities, CharacterSkill,
+        CharacterState, CharacterNotebook, db
+    )
+
+    # Delete children first (CASCADE is optional but safe)
+    CharacterNotebook.query.filter_by(character_id=character_id).delete()
+    CharacterState.query.filter_by(character_id=character_id).delete()
+    CharacterSkill.query.filter_by(character_id=character_id).delete()
+    CharacterAbilities.query.filter_by(character_id=character_id).delete()
+
+    # Delete the character
+    Character.query.filter_by(id=character_id).delete()
+
+    db.session.commit()
+
+    return {"success": True}
+
+
+
+
 
 @app.route('/favicon.ico')
 def favicon():
