@@ -1,6 +1,12 @@
 .vscode/
 .backup/
 
+# Dev scripts
+seed_script.py
+drop_tables.py
+seed_testchars.py
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
