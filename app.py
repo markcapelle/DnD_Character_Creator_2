@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User # Import all models
+from models import db, User, Character # Import all models
 from dotenv import load_dotenv
 import os
 
@@ -74,10 +74,17 @@ def register():
     return render_template("register.html")
 
 
-@app.route("/index")
+@app.route("/index") # User Dashboard
 def index():
-    # to do: fetch characters for session["user_id"]
-    return render_template("index.html")
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect("/login")
+    
+    user = User.query.get(user_id)
+    characters = Character.query.filter_by(user_id=user_id).all()
+
+    return render_template("index.html", user=user, characters=characters)
 
 
 

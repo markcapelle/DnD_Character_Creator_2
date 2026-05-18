@@ -17,6 +17,18 @@
 </head>
 <body>
     <h1>Index</h1>
-    
+    <h2>Welcome, {{ user.email }}</h2>
+
+    <!-- Display characters -->
+    {% if characters %}
+        <h3>Your Characters</h3>
+        <ul>
+            {% for c in characters %}
+                <li>{{ c.name }} — {{ c.race.name}} - {{ c.class_ref.name }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have no characters yet.</p>
+    {% endif %}
 </body>
 </html>

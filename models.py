@@ -40,7 +40,9 @@ class Character(db.Model):
     race_id = db.Column(db.Integer, db.ForeignKey("reference_races.id"))
     race = db.relationship("ReferenceRace")
     
-    char_class = db.Column(db.String(50))
+    class_id = db.Column(db.Integer, db.ForeignKey("reference_classes.id"))
+    class_ref = db.relationship("ReferenceClass")
+
     hit_die = db.Column(db.String(10))
     max_hp = db.Column(db.Integer)
 
