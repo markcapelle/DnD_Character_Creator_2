@@ -24,6 +24,9 @@ with app.app_context():
 # ROUTING
 @app.route("/") # Default Route
 def home():
+    if "user_id" in session:
+        return redirect("/index")
+    
     return render_template("login.html")
 
 @app.route("/login", methods=["GET", "POST"]) # Login Route - should be the first page users arrive on upon opening the app
@@ -87,6 +90,10 @@ def index():
     return render_template("index.html", user=user, characters=characters)
 
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
 
 
 
