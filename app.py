@@ -90,13 +90,13 @@ def index():
     return render_template("index.html", user=user, characters=characters)
 
 
-@app.route("/logout")
+@app.route("/logout") # Logout route
 def logout():
     session.clear()
     return redirect("/login")
 
 
-@app.route("/delete_character/<character_id>", methods=["DELETE"])
+@app.route("/delete_character/<character_id>", methods=["DELETE"]) # Character deletion route
 def delete_character(character_id):
     from models import (
         Character, CharacterAbilities, CharacterSkill,
