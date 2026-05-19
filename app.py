@@ -9,6 +9,7 @@ load_dotenv() # Load the .env file
 app = Flask(__name__)
 app.secret_key = "dev-key"
 
+
 # Load Neon DB URL from .env
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -20,6 +21,12 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+
+# FUNCTIONS
+def ability_mod(score): # Calc modifiers
+    return (score - 10) // 2
+
+app.jinja_env.globals.update(ability_mod=ability_mod)
 
 # ROUTING
 @app.route("/") # Default Route
@@ -117,6 +124,32 @@ def delete_character(character_id):
     return {"success": True}
 
 
+
+@app.route("/character/<character_id>")
+def load_character(character_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login")
+
+    # Load character and ensure it belongs to the logged-in user
+    character = Character.query.filter_by(id=character_id, user_id=user_id).first()
+    if not character:
+        return "Character not found or unauthorized", 404
+
+    # Load related data
+    abilities = character.abilities[0] if character.abilities else None
+    skills = character.skills
+    state = character.state[0] if character.state else None
+    notes = character.notes
+
+    return render_template(
+        "character_sheet.html",
+        character=character,
+        abilities=abilities,
+        skills=skills,
+        state=state,
+        notes=notes
+    )
 
 
 

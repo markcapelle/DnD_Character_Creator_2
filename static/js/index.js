@@ -1,27 +1,27 @@
 
-// HANDLE DELETE
 document.addEventListener("DOMContentLoaded", () => {
-    const table = document.getElementById("character-table");
-
-    table.addEventListener("click", async (e) => {
-        if (!e.target.classList.contains("delete-btn")) return;
-
-        const row = e.target.closest("tr");
-        const characterId = row.dataset.characterId;
-
-        const confirmed = confirm("Are you sure you want to delete this character?");
-        if (!confirmed) return;
-
-        const res = await fetch(`/delete_character/${characterId}`, {
-            method: "DELETE"
+    // LOAD CHARACTER
+    document.querySelectorAll(".load-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const row = e.target.closest("tr");
+            const characterId = row.dataset.characterId;
+            window.location.href = `/character/${characterId}`;
         });
+    });
 
-        const data = await res.json();
+    // DELETE CHARACTER
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            const row = e.target.closest("tr");
+            const characterId = row.dataset.characterId;
 
-        if (data.success) {
-            row.remove();
-        } else {
-            alert("Error deleting character.");
-        }
+            const res = await fetch(`/delete_character/${characterId}`, {
+                method: "DELETE"
+            });
+
+            if (res.ok) {
+                row.remove();
+            }
+        });
     });
 });

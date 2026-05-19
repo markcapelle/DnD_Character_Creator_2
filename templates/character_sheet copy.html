@@ -26,12 +26,8 @@
         <!-- Header -->
         <header class="sheet-header">
             <div class="identity">
-                <h1>{{ character.name }}</h1>
-                <p>
-                    {{ character.race.name if character.race else "-" }}
-                    ·
-                    {{ character.class_ref.name if character.class_ref else "-" }}
-                </p>
+                <h1>Character Sheet</h1>
+                <p>{{ sheet.race_name }} · {{ sheet.class_name }}</p>
             </div>
         </header>
 
@@ -40,46 +36,37 @@
 
             <!-- TOP: Refs -->
             <div class="top-refs">
-
-                <!-- Initiative -->
                 <div class="box">
                     <h3>Initiative</h3>
-                    <p>{{ ability_mod(abilities.dexterity) }}</p>
+                    <p>{{ show_mod(sheet.ability_modifiers.dexterity) }}</p>
                 </div>
-
-                <!-- Passive Perception -->
                 <div class="box">
                     <h3>Passive Perception</h3>
-                    <p>{{ 10 + ability_mod(abilities.wisdom) }}</p>
+                    <p>{{ 10 + sheet.ability_modifiers.wisdom }}</p>
                 </div>
-
-                <!-- Proficiency (Level 1 default +2) -->
                 <div class="box">
                     <h3>Proficiency</h3>
-                    <p>+2</p>
+                    <p>{{ show_mod(sheet.proficiency) }}</p>
                 </div>
-
-                <!-- Dice button -->
                 <div class="box">
-                    <button id="dice-button">Dice</button>
+                    <!-- dice button -->
+                    <button id="dice-button" onclick="openDice()">Dice</button>
                 </div>
-
             </div>
 
             <!-- LEFT: Abilities -->
-            {% set order = ["strength","dexterity","constitution","intelligence","wisdom","charisma"] %}
+            {% set order = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] %}
             <section class="abilities">
                 {% for ability in order %}
                 <div class="ability">
                     <strong>{{ ability|upper }}</strong>
 
                     <span class="score">
-                        {{ abilities[ability] }}
+                        {{ sheet.abilities[ability] }}
                     </span>
 
                     <span class="mod">
-                        {% set m = ability_mod(abilities[ability]) %}
-                        {{ "+" if m >= 0 else "" }}{{ m }}
+                        {{ show_mod(sheet.ability_modifiers[ability]) }}
                     </span>
                 </div>
                 {% endfor %}
@@ -87,39 +74,32 @@
 
             <!-- RIGHT: Details -->
             <section class="details">
-
-                <!-- Hit Points -->
                 <div class="box">
                     <h3>Hit Points:</h3>
                     <div class="hp-controls">
-                        <button>-</button>
-                        <span id="hp-display">{{ state.current_hp }} / {{ character.max_hp }}</span>
-                        <button>+</button>
+                        <button onclick="changeHP('down')">-</button>
+                        <span id="hp-display">{{ sheet.current_hp }} / {{ sheet.max_hp }}</span>
+                        <button onclick="changeHP('up')">+</button>
                     </div>
-
                     <div>
                         <h3>Hit Die:</h3>
-                        <h4>{{ character.hit_die }}</h4>
+                        <h4>{{ sheet.hit_die }}</h4>
                     </div>
-
                     <h3>Hit Dice Used:</h3>
-                    <div id="hitdice-tracker" data-used="{{ state.hit_dice_remaining }}">
+                    <div id="hitdice-tracker" data-used="{{ sheet.hit_dice_used | default(0) }}">
                         <div class="hitdie-box" data-index="1"></div>
                     </div>
                 </div>
 
-                <!-- Death Saves -->
                 <div class="box">
                     <h3>Death Saves:</h3>
-
-                    <div id="deathroll-success" data-used="{{ state.deathroll_successes }}">
+                    <div id="deathroll-success" data-used="{{ sheet.death_rolls_success }}">
                         <p>Successes:</p>
                         <div class="deathroll-box success" data-index="1"></div>
                         <div class="deathroll-box success" data-index="2"></div>
                         <div class="deathroll-box success" data-index="3"></div>
                     </div>
-
-                    <div id="deathroll-fail" data-used="{{ state.deathroll_failures }}">
+                    <div id="deathroll-fail" data-used="{{ sheet.death_rolls_fails }}">
                         <p>Fails:</p>
                         <div class="deathroll-box fail" data-index="1"></div>
                         <div class="deathroll-box fail" data-index="2"></div>
@@ -127,23 +107,18 @@
                     </div>
                 </div>
 
-                <!-- Skills -->
                 <div class="box">
                     <h3>Skills</h3>
                     <ul>
-                        {% for s in skills %}
-                            {% set ability = s.reference_skill.ability %}
-                            {% set base = ability_mod(abilities[ability]) %}
-                            {% set bonus = base + (2 if s.is_proficient else 0) %}
+                        {% for skill, bonus in sheet.skills.items() %}
                             <li>
-                                <strong>{{ s.reference_skill.name }}:</strong>
-                                {{ "+" if bonus >= 0 else "" }}{{ bonus }}
-                                {% if s.is_proficient %}(Proficient){% endif %}
+                                <strong>{{ skill.replace("_", " ")|capitalize }}:</strong>
+                                {{ show_mod(bonus) }}
+                                {% if sheet.skill_proficiencies[skill] %}(Proficient){% endif %}
                             </li>
                         {% endfor %}
                     </ul>
                 </div>
-
             </section>
 
         </div>
@@ -152,8 +127,8 @@
         <section class="box">
             <h3>Race Features:</h3>
             <ul>
-                {% for trait in character.race.traits %}
-                    <li>{{ trait.trait_text }}</li>
+                {% for trait in sheet.traits %}
+                <li>{{ trait }}</li>
                 {% endfor %}
             </ul>
         </section>
@@ -162,57 +137,63 @@
         <section class="box">
             <h3>Class Features</h3>
             <ul>
-                {% for feature in character.class_ref.features %}
-                    <li><strong>{{ feature.name }}</strong>: {{ feature.description }}</li>
+                {% for feature in sheet.class_features %}
+                <li>{{ feature }}</li>
                 {% endfor %}
             </ul>
         </section>
 
         <!-- Spellcasting -->
-        {% if character.class_ref.spellcaster %}
-        <section class="box">
-            <h3>Spellcasting</h3>
+        {% if sheet.spellcaster %}
+            <section class="box">
+                <h3>Spellcasting</h3>
+                <p><strong>Ability:</strong> {{ sheet.spellcasting_ability|capitalize }}</p>
+                <p><strong>Save DC:</strong> {{ sheet.spell_save_dc }}</p>
+                <p><strong>Attack Bonus:</strong> +{{ sheet.spell_attack_bonus }}</p>
 
-            {% set spell_ability = character.class_ref.abilities[0].ability %}
-            {% set spell_mod = ability_mod(abilities[spell_ability]) %}
-            {% set spell_dc = 8 + 2 + spell_mod %}
-            {% set spell_attack = 2 + spell_mod %}
-
-            <p><strong>Ability:</strong> {{ spell_ability|capitalize }}</p>
-            <p><strong>Save DC:</strong> {{ spell_dc }}</p>
-            <p><strong>Attack Bonus:</strong> +{{ spell_attack }}</p>
-
-            <div id="spellslots-section">
-                <h3>Spell Slots</h3>
-                <div class="spellslot-row">
-                    {% for i in range(character.class_ref.spellslots or 0) %}
-                        <div class="spellslot-box" data-index="{{ i+1 }}"></div>
-                    {% endfor %}
+                <div id="spellcasting-data"
+                    data-spellcaster="{{ 'True' if sheet.spellcaster else 'False' }}"
+                    data-spellbook="{{ sheet.spellbook }}"
+                    data-primary="{{ sheet.primary_abilities }}">
                 </div>
-            </div>
-
-            <button id="open-spellbook">Spellbook</button>
-        </section>
+                <div id="spellslots-section">
+                    <h3>Spell Slots</h3>
+                    <div class="spellslot-row">
+                        {% for i in range(sheet.max_spell_slots) %}
+                            <div class="spellslot-box" data-index="{{ i + 1 }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button id="open-spellbook" style="display:none;">Spellbook</button>
+            </section>
         {% endif %}
+
+        <!-- Descriptions -->
+        <section class="box">
+            <h3>Descriptions</h3>
+            <p><strong>Race:</strong> {{ sheet.description.race }}</p>
+            <p><strong>Class:</strong> {{ sheet.description.class }}</p>
+        </section>
 
         <!-- Background -->
         <section class="box">
             <h3>Background</h3>
-            <p><strong>{{ character.background.name }}</strong></p>
-            <p>{{ character.background.description }}</p>
+            <p><strong>{{ sheet.background_name }}</strong></p>
+            <p>{{ sheet.background_description }}</p>
+            <ul>
+                {% for prof in sheet.background_proficiencies %}
+                <li>{{ prof.replace("_", " ")|capitalize }}</li>
+                {% endfor %}
+            </ul>
         </section>
-
-        <!-- Back button -->
-        <form action="/index" method="get">
-            <button type="submit">Back to Dashboard</button>
-        </form>
 
     </div>
 
+
+
+
+
     <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
     <script src="{{ url_for('static', filename='js/character_management.js') }}"></script>
-
 </body>
-
-
 </html>
