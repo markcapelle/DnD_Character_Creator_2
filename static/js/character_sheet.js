@@ -1,3 +1,31 @@
+// Open dice button
+function openDice() {
+    window.open(
+        "/dice", 
+        "diceWindow",
+        "width=400,height=600,resizable=yes"
+    );
+}
+
+// Open spellbook button
+function openSpellbook(characterId) {
+    window.open(
+        `/spellbook/${characterId}`,
+        "spellbookWindow",
+        "width=650,height=600,resizable=yes"
+    );
+}
+
+
+
+
+
+
+
+
+
+
+
 // Increase-Decrease HP.
 function changeHP(direction) {
     playScribble();

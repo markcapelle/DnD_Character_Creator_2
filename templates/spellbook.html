@@ -16,26 +16,26 @@
     <title>Spellbook</title>
 </head>
 <body>
-    <h1>Spellbook</h1>
+    
+    <h1>{{ character.name }} — Spellbook</h1>
 
     <div id="spell-container">
-        {% for level, spells in spellbook.items() %}
-            {% for spell in spells %}
-                <div class="spell-page">
-                    <h2>{{ level.replace("_", " ").title() }}</h2>
+    {% for level, spells in spellbook.items() %}
+        {% for spell in spells %}
+            <div class="spell-page">
+                <h2>Level {{ level }}</h2>
 
-                    <h3>{{ spell.name }}</h3>
-                    <p>{{ spell.description }}</p>
+                <h3>{{ spell.name }}</h3>
+                <p>{{ spell.description }}</p>
 
-                    <ul>
-                        <li><strong>Casting Time:</strong> {{ spell.casting_time }}</li>
-                        <li><strong>Range:</strong> {{ spell.range }}</li>
-                        <li><strong>Components:</strong> {{ spell.components }}</li>
-                        <li><strong>Duration:</strong> {{ spell.duration }}</li>
-                    </ul>
-                </div>
-            {% endfor %}
+                <ul>
+                    <li><strong>Casting Time:</strong> {{ spell.casting_time }}</li>
+                    <li><strong>Components:</strong> {{ spell.components }}</li>
+                    <li><strong>Duration:</strong> {{ spell.duration }}</li>
+                </ul>
+            </div>
         {% endfor %}
+    {% endfor %}
     </div>
 
     <div id="spellbook-controls">

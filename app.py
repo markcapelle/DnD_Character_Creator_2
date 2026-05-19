@@ -153,6 +153,42 @@ def load_character(character_id):
 
 
 
+@app.route("/spellbook/<character_id>")
+def spellbook(character_id):
+    from models import Character, ReferenceSpell
+
+    character = Character.query.get(character_id)
+    if not character:
+        return "Character not found", 404
+
+    # Get the spellbook key from the character's class
+    class_key = character.class_ref.spellbook
+
+    # If the class has no spellbook assigned, show empty list
+    if not class_key:
+        spellbook = {}
+        return render_template("spellbook.html", character=character, spellbook=spellbook)
+
+    # Pull all spells for this class
+    spells = ReferenceSpell.query.filter_by(class_key=class_key).order_by(ReferenceSpell.level).all()
+
+    # Group spells by level
+    spellbook = {}
+    for spell in spells:
+        spellbook.setdefault(spell.level, []).append(spell)
+
+    return render_template("spellbook.html", character=character, spellbook=spellbook)
+
+
+
+@app.route("/dice")
+def dice():
+    return render_template("dice.html")
+
+
+
+
+
 @app.route('/favicon.ico')
 def favicon():
     return app.send_static_file('favicon.ico')

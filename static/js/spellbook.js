@@ -3,38 +3,40 @@ document.addEventListener("DOMContentLoaded", () => {
     let index = 0;
 
     function showPage(i) {
-        pages.forEach((p, n) => {
-            p.style.display = n === i ? "block" : "none";
+        pages.forEach((p, idx) => {
+            p.style.display = idx === i ? "block" : "none";
         });
     }
 
-    // Initial display
-    showPage(index);
-
-    // Button navigation
     document.getElementById("next-spell").addEventListener("click", () => {
-        playPageFlip();
         index = (index + 1) % pages.length;
         showPage(index);
     });
-    
+
     document.getElementById("prev-spell").addEventListener("click", () => {
-        playPageFlip();
         index = (index - 1 + pages.length) % pages.length;
         showPage(index);
     });
-    
+
     // Keyboard navigation
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowRight") {
-            playPageFlip();
-            index = (index + 1) % pages.length;
-            showPage(index);
-        }
-        if (e.key === "ArrowLeft") {
-            playPageFlip();
-            index = (index - 1 + pages.length) % pages.length;
-            showPage(index);
+     document.addEventListener("keydown", (event) => {
+        switch (event.key) {
+            case "ArrowRight":
+                index = (index + 1) % pages.length;
+                showPage(index);
+                break;
+
+            case "ArrowLeft":
+                index = (index - 1 + pages.length) % pages.length;
+                showPage(index);
+                break;
+
+            case "Escape":
+                window.close();
+                break;
         }
     });
+    
+    // Show first page initially
+    showPage(index);
 });
