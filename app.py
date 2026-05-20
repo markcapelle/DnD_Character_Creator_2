@@ -297,6 +297,27 @@ def update_exhaustion(index):
 
 
 
+@app.post("/spellslot/<int:index>") # Spellslots tracker route
+def update_spellslot(index):
+    character_id = session.get("character_id")
+    if not character_id:
+        return {"error": "No character loaded"}, 400
+
+    state = CharacterState.query.filter_by(character_id=character_id).first()
+
+    # Clamp between 1 and max slots
+    max_slots = state.character.class_ref.spellslots or 0
+    index = max(1, min(index, max_slots))
+
+    # Toggle logic
+    if state.current_spellslots == index:
+        state.current_spellslots = 0
+    else:
+        state.current_spellslots = index
+
+    db.session.commit()
+
+    return {"current_spellslots": state.current_spellslots}
 
 
 

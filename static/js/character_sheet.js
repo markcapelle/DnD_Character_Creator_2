@@ -27,7 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Spell Slots Initialize
-
+    const spellSection = document.getElementById("spellslots-section");
+    if (spellSection) {
+        const used = parseInt(spellSection.dataset.used, 10);
+        updateSpellSlotsUI(remaining);
+    }
 });
 
 
@@ -127,5 +131,29 @@ function updateExhaustionUI(level) {
     document.querySelectorAll("#exhaustion-tracker .exhaustion-box").forEach(box => {
         const idx = parseInt(box.dataset.index, 10);
         box.classList.toggle("active", idx <= level);
+    });
+}
+
+// Spellslots Tracker
+document.querySelectorAll(".spellslot-box").forEach(box => {
+    box.addEventListener("click", () => {
+        const index = parseInt(box.dataset.index, 10);
+
+        fetch(`/spellslot/${index}`, { method: "POST" })
+            .then(res => res.json())
+            .then(data => {
+                updateSpellSlotsUI(data.current_spellslots);
+            })
+            .catch(err => console.error("Spell slot update failed:", err));
+    });
+});
+function updateSpellSlotsUI(remaining) {
+    const boxes = document.querySelectorAll(".spellslot-box");
+    const total = boxes.length;
+    const used = total - remaining; // how many have been spent
+
+    boxes.forEach(box => {
+        const idx = parseInt(box.dataset.index, 10);
+        box.classList.toggle("active", idx <= used);
     });
 }

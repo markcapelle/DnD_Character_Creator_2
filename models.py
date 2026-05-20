@@ -92,6 +92,7 @@ class CharacterState(db.Model):
     exhaustion = db.Column(db.Integer)
     deathroll_successes = db.Column(db.Integer)
     deathroll_failures = db.Column(db.Integer)
+    current_spellslots = db.Column(db.Integer, nullable=True)
 
     character = db.relationship("Character", backref=db.backref("state", lazy=True))
 

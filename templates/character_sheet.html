@@ -193,7 +193,7 @@
             <p><strong>Save DC:</strong> {{ spell_dc }}</p>
             <p><strong>Attack Bonus:</strong> +{{ spell_attack }}</p>
 
-            <div id="spellslots-section">
+            <div id="spellslots-section" data-used="{{ state.current_spellslots or 0 }}">
                 <h3>Spell Slots</h3>
                 <div class="spellslot-row">
                     {% for i in range(character.class_ref.spellslots or 0) %}
@@ -201,6 +201,7 @@
                     {% endfor %}
                 </div>
             </div>
+
 
             <button id="open-spellbook" onclick="openSpellbook('{{ character.id }}')">Spellbook</button>
         </section>
