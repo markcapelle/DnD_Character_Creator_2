@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Character # Import all models
+from models import db, User, Character, CharacterState # Import all models
 from dotenv import load_dotenv
 import os
 
@@ -125,7 +125,7 @@ def delete_character(character_id):
 
 
 
-@app.route("/character/<character_id>")
+@app.route("/character/<character_id>") # Character Sheet route
 def load_character(character_id):
     user_id = session.get("user_id")
     if not user_id:
@@ -135,6 +135,9 @@ def load_character(character_id):
     character = Character.query.filter_by(id=character_id, user_id=user_id).first()
     if not character:
         return "Character not found or unauthorized", 404
+
+    # Store active character in session to modify states live
+    session["character_id"] = character_id
 
     # Load related data
     abilities = character.abilities[0] if character.abilities else None
@@ -153,7 +156,7 @@ def load_character(character_id):
 
 
 
-@app.route("/spellbook/<character_id>")
+@app.route("/spellbook/<character_id>") # Spellbook route
 def spellbook(character_id):
     from models import Character, ReferenceSpell
 
@@ -181,9 +184,119 @@ def spellbook(character_id):
 
 
 
-@app.route("/dice")
+@app.route("/dice") # Dicebox route
 def dice():
     return render_template("dice.html")
+
+
+@app.post("/hp/<direction>") # Adjust HP - route updates the current_HP value on screen and in database real time (without refreshing)
+def change_hp(direction):
+    character_id = session.get("character_id")
+    if not character_id:
+        return {"error": "No character loaded"}, 400
+
+    state = CharacterState.query.filter_by(character_id=character_id).first()
+    character = Character.query.get(character_id)
+
+    if not state or not character:
+        return {"error": "Character not found"}, 404
+
+    if direction == "plus":
+        state.current_hp = min(state.current_hp + 1, character.max_hp)
+    elif direction == "minus":
+        state.current_hp = max(state.current_hp - 1, 0)
+    else:
+        return {"error": "Invalid direction"}, 400
+
+    db.session.commit()
+
+    return {
+        "current_hp": state.current_hp,
+        "max_hp": character.max_hp
+    }
+
+
+
+@app.post("/hitdice/toggle") # Hit Dice tracker route
+def toggle_hit_dice():
+    character_id = session.get("character_id")
+    if not character_id:
+        return {"error": "No character loaded"}, 400
+
+    state = CharacterState.query.filter_by(character_id=character_id).first()
+
+    # Toggle between 0 and 1 for now
+    if state.hit_dice_remaining > 0:
+        state.hit_dice_remaining = 0
+    else:
+        state.hit_dice_remaining = 1
+
+    db.session.commit()
+
+    return {"hit_dice_remaining": state.hit_dice_remaining}
+
+
+
+@app.post("/deathsave/<type>/<int:index>") # Death Saves tracker route
+def update_death_save(type, index):
+    character_id = session.get("character_id")
+    if not character_id:
+        return {"error": "No character loaded"}, 400
+
+    state = CharacterState.query.filter_by(character_id=character_id).first()
+
+    # Clamp index between 1 and 3
+    index = max(1, min(index, 3))
+
+    if type == "success":
+        # Toggle logic
+        if state.deathroll_successes == index:
+            state.deathroll_successes = 0
+        else:
+            state.deathroll_successes = index
+
+    elif type == "fail":
+        # Toggle logic
+        if state.deathroll_failures == index:
+            state.deathroll_failures = 0
+        else:
+            state.deathroll_failures = index
+
+    else:
+        return {"error": "Invalid type"}, 400
+
+    db.session.commit()
+
+    return {
+        "successes": state.deathroll_successes,
+        "failures": state.deathroll_failures
+    }
+
+
+
+@app.post("/exhaustion/<int:index>") # Exhaustion tracker route
+def update_exhaustion(index):
+    character_id = session.get("character_id")
+    if not character_id:
+        return {"error": "No character loaded"}, 400
+
+    state = CharacterState.query.filter_by(character_id=character_id).first()
+
+    # Clamp 0–6
+    index = max(0, min(index, 6))
+
+    # Toggle logic
+    if state.exhaustion == index:
+        state.exhaustion = 0
+    else:
+        state.exhaustion = index
+
+    db.session.commit()
+
+    return {"exhaustion": state.exhaustion}
+
+
+
 
 
 

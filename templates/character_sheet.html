@@ -92,9 +92,11 @@
                 <div class="box">
                     <h3>Hit Points:</h3>
                     <div class="hp-controls">
-                        <button>-</button>
-                        <span id="hp-display">{{ state.current_hp }} / {{ character.max_hp }}</span>
-                        <button>+</button>
+                        <button onclick="adjustHP('minus')">-</button>
+                        <span id="current-hp-display">{{ state.current_hp }}</span>
+                        /
+                        <span id="max-hp-display">{{ character.max_hp }}</span>
+                        <button onclick="adjustHP('plus')">+</button>
                     </div>
 
                     <div>
@@ -111,7 +113,6 @@
                 <!-- Death Saves -->
                 <div class="box">
                     <h3>Death Saves:</h3>
-
                     <div id="deathroll-success" data-used="{{ state.deathroll_successes }}">
                         <p>Successes:</p>
                         <div class="deathroll-box success" data-index="1"></div>
@@ -124,6 +125,16 @@
                         <div class="deathroll-box fail" data-index="1"></div>
                         <div class="deathroll-box fail" data-index="2"></div>
                         <div class="deathroll-box fail" data-index="3"></div>
+                    </div>
+                    
+                    <h3>Exhaustion:</h3>
+                    <div id="exhaustion-tracker" data-used="{{ state.exhaustion }}">
+                        <div class="exhaustion-box fail" data-index="1"></div>
+                        <div class="exhaustion-box fail" data-index="2"></div>
+                        <div class="exhaustion-box fail" data-index="3"></div>
+                        <div class="exhaustion-box fail" data-index="4"></div>
+                        <div class="exhaustion-box fail" data-index="5"></div>
+                        <div class="exhaustion-box fail" data-index="6"></div>
                     </div>
                 </div>
 

@@ -1,3 +1,37 @@
+// Initialize Trackers UI on page load
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // Hit Dice Initialize
+    const hitdiceTracker = document.getElementById("hitdice-tracker");
+    if (hitdiceTracker) {
+        const remaining = parseInt(hitdiceTracker.dataset.used, 10);
+        updateHitDiceUI(remaining);
+    }
+
+    // Death Saves Initialize
+    const successContainer = document.getElementById("deathroll-success");
+    const failContainer = document.getElementById("deathroll-fail");
+
+    if (successContainer && failContainer) {
+        const successes = parseInt(successContainer.dataset.used, 10);
+        const failures = parseInt(failContainer.dataset.used, 10);
+
+        updateDeathSavesUI(successes, failures);
+    }
+
+    // Exaustion Initialize
+    const exhaustionTracker = document.getElementById("exhaustion-tracker");
+    if (exhaustionTracker) {
+        const level = parseInt(exhaustionTracker.dataset.used, 10);
+        updateExhaustionUI(level);
+    }
+
+    // Spell Slots Initialize
+
+});
+
+
+
 // Open dice button
 function openDice() {
     window.open(
@@ -16,179 +50,82 @@ function openSpellbook(characterId) {
     );
 }
 
-
-
-
-
-
-
-
-
-
-
-// Increase-Decrease HP.
-function changeHP(direction) {
-    playScribble();
+// Adjust HP
+function adjustHP(direction) {
     fetch(`/hp/${direction}`, { method: "POST" })
         .then(res => res.json())
         .then(data => {
-            document.getElementById("hp-display").textContent = `${data.current_hp} / ${data.max_hp}`;
-        });
+            document.getElementById("current-hp-display").textContent = data.current_hp;
+        })
+        .catch(err => console.error("HP update failed:", err));
 }
 
-// Track user's hit-dice
-document.addEventListener("DOMContentLoaded", () => {
-    const tracker = document.getElementById("hitdice-tracker");
-    const used = Number(tracker.dataset.used);
-
-    updateHitDiceUI(used);
-
-    document.querySelectorAll(".hitdie-box").forEach(box => {
-        box.addEventListener("click", () => {
-            const index = Number(box.dataset.index);
-
-            // If clicking an active box → untick down to index-1
-            // If clicking an inactive box → tick up to index
-            let newCount = index;
-
-            if (box.classList.contains("active")) {
-                newCount = index - 1;
-            }
-
-            fetch("/hitdice/update", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ count: newCount })
-            })
+// Hit Dice Tracker
+document.querySelectorAll(".hitdie-box").forEach(box => {
+    box.addEventListener("click", () => {
+        fetch(`/hitdice/toggle`, { method: "POST" })
             .then(res => res.json())
             .then(data => {
-                updateHitDiceUI(data.hit_dice_used);
-                tracker.dataset.used = data.hit_dice_used; // keep DOM in sync
-            });
-        });
+                updateHitDiceUI(data.hit_dice_remaining);
+            })
+            .catch(err => console.error("Hit Dice update failed:", err));
     });
 });
+function updateHitDiceUI(remaining) {
+    const box = document.querySelector(".hitdie-box");
+    if (!box) return;
 
-function updateHitDiceUI(count) {
-    playScribble();
-    document.querySelectorAll(".hitdie-box").forEach(box => {
-        const index = Number(box.dataset.index);
-        box.classList.toggle("active", index <= count);
-    });
-}
-
-// Track user's death rolls
-document.addEventListener("DOMContentLoaded", () => {
-
-    // ----- SUCCESS TRACKER -----
-    const successTracker = document.getElementById("deathroll-success");
-    const successUsed = Number(successTracker.dataset.used);
-    updateDeathUI("success", successUsed);
-
-    document.querySelectorAll(".deathroll-box.success").forEach(box => {
-        box.addEventListener("click", () => {
-            const index = Number(box.dataset.index);
-
-            // If this box is active, clicking it reduces count
-            const current = Number(successTracker.dataset.used);
-            let newCount = index;
-
-            if (box.classList.contains("active")) {
-                newCount = index - 1;
-            }
-
-            const delta = newCount - current;
-
-            fetch("/deathroll/update", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type: "success", delta })
-            })
-            .then(res => res.json())
-            .then(data => {
-                successTracker.dataset.used = data.success;
-                updateDeathUI("success", data.success);
-            });
-        });
-    });
-
-
-    // ----- FAIL TRACKER -----
-    const failTracker = document.getElementById("deathroll-fail");
-    const failUsed = Number(failTracker.dataset.used);
-    updateDeathUI("fail", failUsed);
-
-    document.querySelectorAll(".deathroll-box.fail").forEach(box => {
-        box.addEventListener("click", () => {
-            const index = Number(box.dataset.index);
-
-            const current = Number(failTracker.dataset.used);
-            let newCount = index;
-
-            if (box.classList.contains("active")) {
-                newCount = index - 1;
-            }
-
-            const delta = newCount - current;
-
-            fetch("/deathroll/update", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type: "fail", delta })
-            })
-            .then(res => res.json())
-            .then(data => {
-                failTracker.dataset.used = data.fails;
-                updateDeathUI("fail", data.fails);
-            });
-        });
-    });
-
-
-    // ----- UI UPDATE FUNCTION -----
-    function updateDeathUI(type, count) {
-        playScribble();
-        document.querySelectorAll(`.deathroll-box.${type}`).forEach(box => {
-            const index = Number(box.dataset.index);
-            box.classList.toggle("active", index <= count);
-        });
+    if (remaining === 0) {
+        box.classList.add("active");
+    } else {
+        box.classList.remove("active");
     }
+}
 
-});
+// Death Saves Tracker
+document.querySelectorAll(".deathroll-box").forEach(box => {
+    box.addEventListener("click", () => {
+        const type = box.classList.contains("success") ? "success" : "fail";
+        const index = parseInt(box.dataset.index, 10);
 
-// Track the player's spell slots if the class is a spellcaster.
-document.addEventListener("DOMContentLoaded", () => {
-    const spellSlotsSection = document.getElementById("spellslots-section");
-    if (!spellSlotsSection) return;
-
-    const boxes = spellSlotsSection.querySelectorAll(".spellslot-box");
-
-    boxes.forEach(box => {
-        box.addEventListener("click", () => {
-            const index = Number(box.dataset.index);
-
-            let newCount = index;
-            if (box.classList.contains("active")) {
-                newCount = index - 1;
-            }
-
-            fetch("/spellslots/update", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ count: newCount })
-            })
+        fetch(`/deathsave/${type}/${index}`, { method: "POST" })
             .then(res => res.json())
             .then(data => {
-                updateSpellSlotUI(data.spell_slots_used);
-            });
-        });
+                updateDeathSavesUI(data.successes, data.failures);
+            })
+            .catch(err => console.error("Death save update failed:", err));
     });
 });
+function updateDeathSavesUI(successes, failures) {
+    // Success boxes
+    document.querySelectorAll("#deathroll-success .deathroll-box").forEach(box => {
+        const idx = parseInt(box.dataset.index, 10);
+        box.classList.toggle("active", idx <= successes);
+    });
 
-function updateSpellSlotUI(count) {
-    playScribble();
-    document.querySelectorAll(".spellslot-box").forEach(box => {
-        const index = Number(box.dataset.index);
-        box.classList.toggle("active", index <= count);
+    // Failure boxes
+    document.querySelectorAll("#deathroll-fail .deathroll-box").forEach(box => {
+        const idx = parseInt(box.dataset.index, 10);
+        box.classList.toggle("active", idx <= failures);
+    });
+}
+
+// Exaustion Tracker
+document.querySelectorAll("#exhaustion-tracker .exhaustion-box").forEach(box => {
+    box.addEventListener("click", () => {
+        const index = parseInt(box.dataset.index, 10);
+
+        fetch(`/exhaustion/${index}`, { method: "POST" })
+            .then(res => res.json())
+            .then(data => {
+                updateExhaustionUI(data.exhaustion);
+            })
+            .catch(err => console.error("Exhaustion update failed:", err));
+    });
+});
+function updateExhaustionUI(level) {
+    document.querySelectorAll("#exhaustion-tracker .exhaustion-box").forEach(box => {
+        const idx = parseInt(box.dataset.index, 10);
+        box.classList.toggle("active", idx <= level);
     });
 }
