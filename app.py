@@ -305,19 +305,16 @@ def update_spellslot(index):
 
     state = CharacterState.query.filter_by(character_id=character_id).first()
 
-    # Clamp between 1 and max slots
-    max_slots = state.character.class_ref.spellslots or 0
-    index = max(1, min(index, max_slots))
+    max_slots = state.character.class_ref.spellslots or 2
+    spent = max(0, min(index, max_slots))
 
-    # Toggle logic
-    if state.current_spellslots == index:
-        state.current_spellslots = 0
-    else:
-        state.current_spellslots = index
+    state.current_spellslots = max_slots - index
 
     db.session.commit()
 
     return {"current_spellslots": state.current_spellslots}
+
+
 
 
 

@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const spellSection = document.getElementById("spellslots-section");
     if (spellSection) {
         const used = parseInt(spellSection.dataset.used, 10);
-        updateSpellSlotsUI(remaining);
+        updateSpellSlotsUI(used);
     }
 });
 
@@ -137,9 +137,13 @@ function updateExhaustionUI(level) {
 // Spellslots Tracker
 document.querySelectorAll(".spellslot-box").forEach(box => {
     box.addEventListener("click", () => {
-        const index = parseInt(box.dataset.index, 10);
+        box.classList.toggle("active");
 
-        fetch(`/spellslot/${index}`, { method: "POST" })
+        // Count how many are active
+        const activeCount = document.querySelectorAll(".spellslot-box.active").length;
+
+        // Send active count to backend
+        fetch(`/spellslot/${activeCount}`, { method: "POST" })
             .then(res => res.json())
             .then(data => {
                 updateSpellSlotsUI(data.current_spellslots);
@@ -147,13 +151,14 @@ document.querySelectorAll(".spellslot-box").forEach(box => {
             .catch(err => console.error("Spell slot update failed:", err));
     });
 });
+
 function updateSpellSlotsUI(remaining) {
     const boxes = document.querySelectorAll(".spellslot-box");
-    const total = boxes.length;
-    const used = total - remaining; // how many have been spent
+    const max = boxes.length;
 
-    boxes.forEach(box => {
-        const idx = parseInt(box.dataset.index, 10);
-        box.classList.toggle("active", idx <= used);
+    const spent = max - remaining;
+
+    boxes.forEach((box, i) => {
+        box.classList.toggle("active", i < spent);
     });
 }
