@@ -122,6 +122,29 @@
 
 
 
+#spellbook-pips {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.pip {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(0,0,0,0.25); /* inactive */
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.pip.active {
+    background-color: rgba(0,0,255,0.85); /* active page */
+}
+
+
+
+
 
 
 * {
