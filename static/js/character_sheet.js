@@ -64,13 +64,37 @@ function openSpellbook(characterId) {
 }
 
 // Adjust HP
+let hpQueue = 0;
+let hpTimer = null;
+
 function adjustHP(direction) {
-    fetch(`/hp/${direction}`, { method: "POST" })
+    // Convert direction to +1 or -1
+    hpQueue += direction === "plus" ? 1 : -1;
+
+    // Update UI instantly
+    const display = document.getElementById("current-hp-display");
+    const current = parseInt(display.textContent, 10);
+    display.textContent = current + (direction === "plus" ? 1 : -1);
+
+    // Reset timer
+    clearTimeout(hpTimer);
+
+    // Batch send after 150ms of no clicking
+    hpTimer = setTimeout(() => {
+        const amount = hpQueue;
+        hpQueue = 0;
+
+        fetch(`/hp/batch`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ delta: amount })
+        })
         .then(res => res.json())
         .then(data => {
-            document.getElementById("current-hp-display").textContent = data.current_hp;
+            display.textContent = data.current_hp;
         })
-        .catch(err => console.error("HP update failed:", err));
+        .catch(err => console.error("HP batch update failed:", err));
+    }, 150);
 }
 
 // Hit Dice Tracker

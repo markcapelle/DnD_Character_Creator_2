@@ -331,6 +331,29 @@ def change_hp(direction):
         "max_hp": character.max_hp
     }
 
+@app.post("/hp/batch") # Adjust HP - batch updates for HP
+def batch_hp():
+    character_id = session.get("character_id")
+    if not character_id:
+        return {"error": "No character loaded"}, 400
+
+    state = CharacterState.query.filter_by(character_id=character_id).first()
+    character = Character.query.get(character_id)
+
+    if not state or not character:
+        return {"error": "Character not found"}, 404
+
+    data = request.get_json()
+    delta = int(data.get("delta", 0))
+
+    # Apply delta safely
+    state.current_hp = max(0, min(character.max_hp, state.current_hp + delta))
+
+    db.session.commit()
+
+    return {"current_hp": state.current_hp}
+
+
 
 
 @app.post("/hitdice/toggle") # Hit Dice tracker route
