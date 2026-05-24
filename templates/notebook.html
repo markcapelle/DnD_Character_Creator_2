@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <title>{{ character.name }} - Notebook</title>
+
+</head>
+
+<body data-character-id="{{ character.id }}">
+
+    <div id="notebook-container">
+
+        <!-- LEFT COLUMN: NOTE TABS -->
+        <div id="notebook-tabs">
+
+            {% for note in notes %}
+            <div class="note-tab" data-note-id="{{ note.id }}">
+                {{ note.title }}
+            </div>
+            {% endfor %}
+
+            <!-- ADD NEW NOTE BUTTON -->
+            <div id="add-note-tab">+ Add New Note</div>
+        </div>
+
+
+
+        <!-- RIGHT COLUMN: NOTE BODY -->
+        <div id="notebook-body">
+
+            <!-- When no note is selected -->
+            <div id="no-note-selected">
+                <p>Select a note from the left or create a new one.</p>
+            </div>
+
+            <!-- Active note content -->
+            <div id="note-editor" style="display:none;">
+
+                <div id="note-header">
+                    <input id="note-title-input" type="text" placeholder="Note Title">
+                    <button id="delete-note-btn">Delete</button>
+                </div>
+
+                <textarea id="note-content-input" placeholder="Write your notes here..."></textarea>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/notebook.js') }}"></script>
+
+</body>
+</html>

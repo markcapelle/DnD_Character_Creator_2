@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Character, CharacterState # Import all models
+from models import db, User, Character, CharacterState, CharacterNotebook # Import all models
 from dotenv import load_dotenv
 import os
 
@@ -184,6 +184,115 @@ def spellbook(character_id):
 
 
 
+@app.route("/notebook/<character_id>") # Notebook route - display notebook.html
+def notebook(character_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login")
+
+    # Load character and ensure ownership
+    character = Character.query.filter_by(id=character_id, user_id=user_id).first()
+    if not character:
+        return "Character not found or unauthorized", 404
+
+    notes = character.notes  # list of CharacterNotebook entries
+
+    return render_template(
+        "notebook.html",
+        character=character,
+        notes=notes
+    )
+
+@app.route("/notebook/load/<int:note_id>") # Notebook route - display individual notes
+def load_note(note_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return {"error": "Not logged in"}, 403
+
+    note = CharacterNotebook.query.get(note_id)
+    if not note:
+        return {"error": "Note not found"}, 404
+
+    # Ownership check
+    if note.character.user_id != user_id:
+        return {"error": "Unauthorized"}, 403
+
+    return {
+        "id": note.id,
+        "title": note.title,
+        "content": note.content
+    }
+
+@app.post("/notebook/save/<int:note_id>") # Notebook route - save changes
+def save_note(note_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return {"error": "Not logged in"}, 403
+
+    note = CharacterNotebook.query.get(note_id)
+    if not note:
+        return {"error": "Note not found"}, 404
+
+    if note.character.user_id != user_id:
+        return {"error": "Unauthorized"}, 403
+
+    data = request.json
+    note.title = data.get("title", note.title)
+    note.content = data.get("content", note.content)
+
+    db.session.commit()
+
+    return {"success": True}
+
+
+@app.post("/notebook/create/<character_id>") # Notebook route - create new note
+def create_note(character_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return {"error": "Not logged in"}, 403
+
+    # Ensure character belongs to user
+    character = Character.query.filter_by(id=character_id, user_id=user_id).first()
+    if not character:
+        return {"error": "Unauthorized"}, 403
+
+    # Create new note
+    new_note = CharacterNotebook(
+        character_id=character_id,
+        title="New Note",
+        content=""
+    )
+
+    db.session.add(new_note)
+    db.session.commit()
+
+    return {
+        "id": new_note.id,
+        "title": new_note.title,
+        "content": new_note.content
+    }
+
+@app.post("/notebook/delete/<int:note_id>") # Notebook route - delete note
+def delete_note(note_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return {"error": "Not logged in"}, 403
+
+    note = CharacterNotebook.query.get(note_id)
+    if not note:
+        return {"error": "Note not found"}, 404
+
+    # Ownership check
+    if note.character.user_id != user_id:
+        return {"error": "Unauthorized"}, 403
+
+    db.session.delete(note)
+    db.session.commit()
+
+    return {"success": True}
+
+
+
 @app.route("/dice") # Dicebox route
 def dice():
     return render_template("dice.html")
@@ -313,6 +422,7 @@ def update_spellslot(index):
     db.session.commit()
 
     return {"current_spellslots": state.current_spellslots}
+
 
 
 

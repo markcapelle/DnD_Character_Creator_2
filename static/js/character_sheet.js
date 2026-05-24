@@ -45,6 +45,15 @@ function openDice() {
     );
 }
 
+// Open notebook button
+function openNotebook(characterId) {
+    window.open(
+        `/notebook/${characterId}`,
+        "notebookWindow",
+        "width=900,height=700,resizable=yes"
+    );
+}
+
 // Open spellbook button
 function openSpellbook(characterId) {
     window.open(

@@ -329,3 +329,102 @@ button {
   cursor: pointer;
   padding: 0.2rem 0.5rem;
 }
+
+
+
+
+
+/* Notebook styles */
+#notebook-container {
+    display: flex;
+    height: 100vh;
+    background: #fffdf8;
+}
+
+/* LEFT COLUMN: NOTE TABS */
+#notebook-tabs {
+    width: 220px;
+    background:
+        linear-gradient(#f7f1e1, #efe3c5);
+    border-right: 2px solid #3a2f1d;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.note-tab,
+#add-note-tab {
+    padding: 12px;
+    border-bottom: 1px solid #3a2f1d;
+    cursor: pointer;
+    font-family: "Garamond", serif;
+}
+
+.note-tab:hover,
+#add-note-tab:hover {
+    background: #f2efe9;
+}
+
+.note-tab.active {
+    background: #fffdf8;
+    font-weight: bold;
+}
+
+/* RIGHT COLUMN: NOTE BODY */
+#notebook-body {
+    flex: 1;
+    padding: 20px;
+    background:
+        linear-gradient(#f7f1e1, #efe3c5);
+}
+
+#no-note-selected {
+    text-align: center;
+    margin-top: 40px;
+    font-style: italic;
+    color: #3a2f1d;
+}
+
+/* NOTE EDITOR */
+#note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#note-title-input {
+    width: 70%;
+    font-size: 1.2rem;
+    padding: 5px;
+    border: 1px solid #3a2f1d;
+    background: #fffdf8;
+}
+
+#delete-note-btn {
+    background: crimson;
+    color: white;
+    border: 1px solid #3a2f1d;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#note-content-input {
+    width: 100%;
+    height: calc(100vh - 220px);
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #3a2f1d;
+    background: #fffdf8;
+    resize: none;
+}
+
+#save-note-btn {
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: #d4c29a;
+    border: 1px solid #3a2f1d;
+    cursor: pointer;
+    border-radius: 4px;
+}
