@@ -13,6 +13,13 @@ app.secret_key = "dev-key"
 # Load Neon DB URL from .env
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 280,
+    "pool_size": 5,
+    "max_overflow": 10
+}
+
 
 # Register app with SQLAlchemy
 db.init_app(app)
