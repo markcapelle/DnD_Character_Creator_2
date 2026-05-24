@@ -78,6 +78,18 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("note-title-input").addEventListener("input", scheduleAutosave);
     document.getElementById("note-content-input").addEventListener("input", scheduleAutosave);
 
+    document.getElementById("note-title-input").addEventListener("input", () => {
+        const editor = document.getElementById("note-editor");
+        const noteId = editor.dataset.activeNoteId;
+        if (!noteId) return;
+
+        const newTitle = document.getElementById("note-title-input").value;
+
+        // Update the tab text immediately
+        const tab = document.querySelector(`.note-tab[data-note-id="${noteId}"]`);
+        if (tab) tab.textContent = newTitle;
+    });
+
 
 
 
@@ -141,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    
+
 
     // DELETE NOTE
     document.getElementById("delete-note-btn").addEventListener("click", () => {
