@@ -24,4 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    // CREATE CHARACTER
+    document.getElementById("new-character-btn").addEventListener("click", () => {
+        window.location.href = "/create_character";
+    });
+
 });

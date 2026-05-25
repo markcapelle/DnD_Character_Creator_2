@@ -434,6 +434,13 @@ def update_spellslot(index):
 
 
 
+@app.route("/create_character") # Character creation route - load character creation html
+def create_character():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login")
+
+    return render_template("character_creation.html")
 
 
 
