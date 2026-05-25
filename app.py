@@ -440,7 +440,88 @@ def create_character():
     if not user_id:
         return redirect("/login")
 
-    return render_template("character_creation.html")
+    from models import (
+        ReferenceRace,
+        ReferenceClass,
+        ReferenceBackground,
+        ReferenceSkill
+    )
+
+    # Build dictionaries for template
+    races = {r.key: r for r in ReferenceRace.query.all()}
+    classes = {c.key: c for c in ReferenceClass.query.all()}
+    backgrounds = {b.key: b for b in ReferenceBackground.query.all()}
+
+    # Skills use ID as key
+    skills = {s.id: s.name for s in ReferenceSkill.query.all()}
+
+    return render_template(
+        "character_creation.html",
+        races=races,
+        classes=classes,
+        backgrounds=backgrounds,
+        SKILLS=skills
+    )
+
+@app.route("/api/race/<race_key>") # Character creation route - load selected race info
+def api_get_race(race_key):
+    from models import ReferenceRace
+
+    race = ReferenceRace.query.filter_by(key=race_key).first()
+    if not race:
+        return {"error": "Race not found"}, 404
+
+    return {
+        "name": race.name,
+        "description": race.description,
+        "traits": [t.trait_text for t in race.traits],
+        "modifiers": [
+            {"ability": m.ability, "value": m.value}
+            for m in race.modifiers
+        ]
+    }
+
+@app.route("/api/class/<class_key>") # Character creation route - load selected class info
+def api_get_class(class_key):
+    from models import ReferenceClass
+
+    cls = ReferenceClass.query.filter_by(key=class_key).first()
+    if not cls:
+        return {"error": "Class not found"}, 404
+
+    return {
+        "name": cls.name,
+        "description": cls.description,
+        "hit_die": cls.hit_die,
+        "base_hp": cls.base_hp,
+        "skill_choices": cls.skill_choices,
+        "saves": [s.ability for s in cls.saves],
+        "abilities": [a.ability for a in cls.abilities],
+        "features": [
+            {"name": f.name, "description": f.description}
+            for f in cls.features
+        ],
+        "class_skills": [s.skill for s in cls.skills]  # e.g. "Athletics"
+    }
+    
+@app.route("/api/background/<background_key>") # Character creation route - load selected background info
+def api_get_background(background_key):
+    from models import ReferenceBackground
+
+    bg = ReferenceBackground.query.filter_by(key=background_key).first()
+    if not bg:
+        return {"error": "Background not found"}, 404
+
+    return {
+        "name": bg.name,
+        "description": bg.description,
+        "proficiencies": [p.proficiency_type for p in bg.proficiencies]
+    }
+
+
+
+
+
 
 
 

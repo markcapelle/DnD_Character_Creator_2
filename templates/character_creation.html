@@ -18,12 +18,122 @@
 
 </head>
 <body>
-    <h1>character creatior</h1>
 
     <!-- Back button -->
     <form action="/index" method="get">
         <button type="submit">Back to Dashboard</button>
     </form>
-    
+
+    <div class="creation-wrapper">
+
+        <h1 style="text-align:center; margin-top:0;">Create New Character</h1>
+
+        <div class="creation-grid">
+
+            <!-- LEFT SIDE -->
+            <div>
+
+                <!-- NAME -->
+                <div class="section">
+                    <h2>Name</h2>
+                    <input type="text" id="char-name" placeholder="Enter character name" style="width:100%; padding:0.5rem;">
+                </div>
+
+                <!-- RACE -->
+                <div class="section">
+                    <h2>Race</h2>
+                    <select id="race-select" style="width:100%; padding:0.4rem;">
+                        <option value="">-- choose race --</option>
+                        {% for key, race in races.items() %}
+                            <option value="{{ key }}">{{ race.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div id="race-info" class="info-box"></div>
+                </div>
+
+                <!-- CLASS -->
+                <div class="section">
+                    <h2>Class</h2>
+                    <select id="class-select" style="width:100%; padding:0.4rem;">
+                        <option value="">-- choose class --</option>
+                        {% for key, cls in classes.items() %}
+                            <option value="{{ key }}">{{ cls.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div id="class-info" class="info-box"></div>
+                </div>
+
+                <!-- BACKGROUND -->
+                <div class="section">
+                    <h2>Background</h2>
+                    <select id="background-select" style="width:100%; padding:0.4rem;">
+                        <option value="">-- choose background --</option>
+                        {% for key, bg in backgrounds.items() %}
+                            <option value="{{ key }}">{{ bg.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div id="background-info" class="info-box"></div>
+                </div>
+
+                <!-- SKILLS -->
+                <div class="section">
+                    <h2>Skills</h2>
+                    <p id="skill-instructions">Background skills are pre-selected. Choose class skills once class is selected.</p>
+
+                    <div id="skills-container" class="skills-grid">
+                        {% for skill_id, skill_name in SKILLS.items() %}
+                            <label>
+                                <input type="checkbox"
+                                    class="skill-checkbox"
+                                    data-skill="{{ skill_id }}"
+                                    data-skill-name="{{ skill_name|lower }}"
+                                    disabled>
+                                {{ skill_name }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div>
+
+                <!-- ABILITY SCORES -->
+                <div class="section">
+                    <h2>Abilities</h2>
+
+                    <div class="ability-column">
+                        {% for ability in ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"] %}
+                            <div class="ability-box" id="ability-{{ ability|lower }}">
+                                <strong>{{ ability }}</strong>
+                                <div class="assigned-score"></div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- SCORE POOL -->
+                <div class="section">
+                    <h2>Available Scores</h2>
+                    <div class="score-pool">
+                        {% for score in [15, 14, 13, 12, 10, 8] %}
+                            <div class="score-box" draggable="true">{{ score }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/character_creation.js') }}"></script>
+
 </body>
 </html>
