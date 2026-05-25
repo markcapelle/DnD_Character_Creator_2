@@ -108,9 +108,12 @@
 
                     <div class="ability-column">
                         {% for ability in ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"] %}
-                            <div class="ability-box" id="ability-{{ ability|lower }}">
+                            <div class="ability-box"
+                                id="ability-{{ ability|lower }}"
+                                data-ability="{{ ability|lower }}">
+                                
                                 <strong>{{ ability }}</strong>
-                                <div class="assigned-score"></div>
+                                <div class="assigned-score" draggable="true"></div>
                             </div>
                         {% endfor %}
                     </div>

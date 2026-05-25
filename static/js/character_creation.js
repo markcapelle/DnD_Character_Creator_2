@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     // DOM references
+    const raceSelect = document.getElementById("race-select");
+    const raceInfoBox = document.getElementById("race-info");
+    
     const classSelect = document.getElementById("class-select");
     const classInfoBox = document.getElementById("class-info");
 
@@ -13,10 +16,46 @@ document.addEventListener("DOMContentLoaded", () => {
     let maxClassSkills = 0;
     let backgroundSkills = [];
 
-    // -------------------------------
-    // CLASS SELECTION
-    // -------------------------------
+    
+    // RACE SELECTION
+    raceSelect.addEventListener("change", () => {
+        const key = raceSelect.value;
 
+        if (!key) {
+            raceInfoBox.innerHTML = "";
+            return;
+        }
+
+        fetch(`/api/race/${key}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    raceInfoBox.innerHTML = "<em>Race not found.</em>";
+                    return;
+                }
+
+                let html = `
+                    <strong>${data.name}</strong><br>
+                    <p>${data.description}</p>
+
+                    <h4>Traits</h4>
+                    <ul>
+                        ${data.traits.map(t => `<li>${t}</li>`).join("")}
+                    </ul>
+
+                    <h4>Ability Modifiers</h4>
+                    <ul>
+                        ${data.modifiers.map(m => `<li>${m.ability}: +${m.value}</li>`).join("")}
+                    </ul>
+                `;
+
+                raceInfoBox.innerHTML = html;
+            });
+    });
+
+
+
+    // CLASS SELECTION
     classSelect.addEventListener("change", () => {
         const key = classSelect.value;
 
@@ -75,10 +114,10 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
-    // -------------------------------
-    // BACKGROUND SELECTION
-    // -------------------------------
 
+
+
+    // BACKGROUND SELECTION
     backgroundSelect.addEventListener("change", () => {
         const key = backgroundSelect.value;
 
@@ -117,10 +156,9 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
-    // -------------------------------
-    // RESET SKILLS
-    // -------------------------------
 
+    
+    // RESET SKILLS
     function resetAllSkillSelections() {
         skillCheckboxes.forEach(cb => {
             cb.checked = false;
@@ -130,10 +168,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // -------------------------------
-    // APPLY BACKGROUND SKILLS
-    // -------------------------------
 
+    
+    // APPLY BACKGROUND SKILLS
     function applyBackgroundSkills() {
         skillCheckboxes.forEach(cb => {
             const skillName = cb.dataset.skillName;
@@ -147,10 +184,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // -------------------------------
-    // ENABLE SKILLS ONLY IF BOTH SELECTED
-    // -------------------------------
 
+    
+    // ENABLE SKILLS ONLY IF BOTH SELECTED
     function enableSkillSelectionIfReady() {
         if (classSelect.value && backgroundSelect.value) {
             skillCheckboxes.forEach(cb => {
@@ -161,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    
+
     // CLASS SKILL LIMIT ENFORCEMENT
     function enforceSkillLimit() {
         // Count selected class skills (NOT background skills)
@@ -194,5 +230,6 @@ document.addEventListener("DOMContentLoaded", () => {
             enforceSkillLimit();
         });
     });
+    
 
 });
