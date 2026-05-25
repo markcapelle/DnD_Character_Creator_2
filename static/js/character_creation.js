@@ -18,11 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     
     // RACE SELECTION
+    let racialModifiers = {};  // ability → value
+
     raceSelect.addEventListener("change", () => {
         const key = raceSelect.value;
 
         if (!key) {
             raceInfoBox.innerHTML = "";
+            racialModifiers = {};
+            updateFinalScores();
             return;
         }
 
@@ -34,22 +38,27 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
+                // Store modifiers
+                racialModifiers = {};
+                data.modifiers.forEach(m => {
+                    racialModifiers[m.ability.toLowerCase()] = m.value;
+                });
+
+                // Render race info (unchanged)
                 let html = `
                     <strong>${data.name}</strong><br>
                     <p>${data.description}</p>
 
                     <h4>Traits</h4>
-                    <ul>
-                        ${data.traits.map(t => `<li>${t}</li>`).join("")}
-                    </ul>
+                    <ul>${data.traits.map(t => `<li>${t}</li>`).join("")}</ul>
 
                     <h4>Ability Modifiers</h4>
-                    <ul>
-                        ${data.modifiers.map(m => `<li>${m.ability}: +${m.value}</li>`).join("")}
-                    </ul>
+                    <ul>${data.modifiers.map(m => `<li>${m.ability}: +${m.value}</li>`).join("")}</ul>
                 `;
 
                 raceInfoBox.innerHTML = html;
+
+                updateFinalScores();
             });
     });
 
@@ -185,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    
+
     // ENABLE SKILLS ONLY IF BOTH SELECTED
     function enableSkillSelectionIfReady() {
         if (classSelect.value && backgroundSelect.value) {
@@ -231,5 +240,84 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
     
+
+
+    // ABILITY SCORE SELECT
+    const abilitySelects = document.querySelectorAll(".ability-select");
+
+    // Track which scores are still available
+    let availableScores = ["15", "14", "13", "12", "10", "8"];
+
+    // Track assigned scores
+    let assignedScores = {
+        strength: null,
+        dexterity: null,
+        constitution: null,
+        intelligence: null,
+        wisdom: null,
+        charisma: null
+    };
+
+    abilitySelects.forEach(select => {
+        select.addEventListener("change", () => {
+            const ability = select.dataset.ability;
+            const newValue = select.value;
+            const oldValue = assignedScores[ability];
+
+            // 1. Free the old value back into the pool
+            if (oldValue) {
+                availableScores.push(oldValue);
+            }
+
+            // 2. Assign the new value
+            assignedScores[ability] = newValue || null;
+
+            // 3. Remove the new value from the pool
+            if (newValue) {
+                availableScores = availableScores.filter(v => v !== newValue);
+            }
+
+            // 4. Update all dropdowns to reflect available scores
+            refreshAbilityDropdowns();
+            updateFinalScores();
+        });
+    });
+
+    function refreshAbilityDropdowns() {
+        abilitySelects.forEach(select => {
+            const ability = select.dataset.ability;
+            const currentValue = assignedScores[ability];
+
+            // Rebuild dropdown options
+            select.innerHTML = `<option value="">--</option>`;
+
+            // Add available scores
+            availableScores.forEach(score => {
+                select.innerHTML += `<option value="${score}">${score}</option>`;
+            });
+
+            // Re-add the currently selected value (if any)
+            if (currentValue) {
+                select.innerHTML += `<option value="${currentValue}" selected>${currentValue}</option>`;
+            }
+        });
+    }
+
+    function updateFinalScores() {
+        abilitySelects.forEach(select => {
+            const ability = select.dataset.ability;
+            const base = Number(select.value) || 0;
+            const mod = racialModifiers[ability] || 0;
+            const finalValue = base + mod;
+
+            const finalSpan = document.getElementById(`final-${ability}`);
+
+            if (base === 0) {
+                finalSpan.textContent = "—";
+            } else {
+                finalSpan.textContent = finalValue;
+            }
+        });
+    }
 
 });

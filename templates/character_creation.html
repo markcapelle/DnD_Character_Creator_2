@@ -26,7 +26,7 @@
 
     <div class="creation-wrapper">
 
-        <h1 style="text-align:center; margin-top:0;">Create New Character</h1>
+        <h1>Create New Character</h1>
 
         <div class="creation-grid">
 
@@ -36,13 +36,13 @@
                 <!-- NAME -->
                 <div class="section">
                     <h2>Name</h2>
-                    <input type="text" id="char-name" placeholder="Enter character name" style="width:100%; padding:0.5rem;">
+                    <input type="text" id="char-name" placeholder="Enter character name">
                 </div>
 
                 <!-- RACE -->
                 <div class="section">
                     <h2>Race</h2>
-                    <select id="race-select" style="width:100%; padding:0.4rem;">
+                    <select id="race-select">
                         <option value="">-- choose race --</option>
                         {% for key, race in races.items() %}
                             <option value="{{ key }}">{{ race.name }}</option>
@@ -55,7 +55,7 @@
                 <!-- CLASS -->
                 <div class="section">
                     <h2>Class</h2>
-                    <select id="class-select" style="width:100%; padding:0.4rem;">
+                    <select id="class-select">
                         <option value="">-- choose class --</option>
                         {% for key, cls in classes.items() %}
                             <option value="{{ key }}">{{ cls.name }}</option>
@@ -68,7 +68,7 @@
                 <!-- BACKGROUND -->
                 <div class="section">
                     <h2>Background</h2>
-                    <select id="background-select" style="width:100%; padding:0.4rem;">
+                    <select id="background-select">
                         <option value="">-- choose background --</option>
                         {% for key, bg in backgrounds.items() %}
                             <option value="{{ key }}">{{ bg.name }}</option>
@@ -103,37 +103,44 @@
             <div>
 
                 <!-- ABILITY SCORES -->
-                <div class="section">
+                <div class="section sticky-abilities">
                     <h2>Abilities</h2>
 
                     <div class="ability-column">
                         {% for ability in ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"] %}
-                            <div class="ability-box"
-                                id="ability-{{ ability|lower }}"
-                                data-ability="{{ ability|lower }}">
-                                
+                            <div class="ability-box" id="ability-{{ ability|lower }}">
                                 <strong>{{ ability }}</strong>
-                                <div class="assigned-score" draggable="true"></div>
+
+                                <select class="ability-select"
+                                        data-ability="{{ ability|lower }}">
+                                    <option value="">--</option>
+                                    <option value="15">15</option>
+                                    <option value="14">14</option>
+                                    <option value="13">13</option>
+                                    <option value="12">12</option>
+                                    <option value="10">10</option>
+                                    <option value="8">8</option>
+                                </select>
+
+                                <span class="final-score" id="final-{{ ability|lower }}">—</span>
                             </div>
                         {% endfor %}
                     </div>
                 </div>
 
-                <!-- SCORE POOL -->
-                <div class="section">
-                    <h2>Available Scores</h2>
-                    <div class="score-pool">
-                        {% for score in [15, 14, 13, 12, 10, 8] %}
-                            <div class="score-box" draggable="true">{{ score }}</div>
-                        {% endfor %}
-                    </div>
-                </div>
 
             </div>
 
         </div>
 
+        <div class="centeralign"><button>Create Character</button></div>
+
     </div>
+
+    <!-- Back button -->
+    <form action="/index" method="get">
+        <button type="submit">Back to Dashboard</button>
+    </form>
 
     <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
     <script src="{{ url_for('static', filename='js/character_creation.js') }}"></script>
