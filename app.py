@@ -518,6 +518,89 @@ def api_get_background(background_key):
         "proficiencies": [p.proficiency_type for p in bg.proficiencies]
     }
 
+@app.post("/api/create_character") # Character creation route - create character
+def api_create_character():
+    user_id = session.get("user_id")
+    if not user_id:
+        return {"error": "Not logged in"}, 403
+
+    data = request.get_json()
+
+    from models import (
+        Character, CharacterAbilities, CharacterSkill, CharacterState,
+        ReferenceRace, ReferenceClass, ReferenceBackground, ReferenceSkill,
+        db
+    )
+
+    # Look up reference objects
+    race_ref = ReferenceRace.query.filter_by(key=data["race"]).first()
+    cls_ref = ReferenceClass.query.filter_by(key=data["class"]).first()
+    bg_ref = ReferenceBackground.query.filter_by(key=data["background"]).first()
+
+    if not race_ref or not cls_ref or not bg_ref:
+        return {"error": "Invalid race/class/background"}, 400
+
+    # --- Create Character ---
+    char = Character(
+        user_id=user_id,
+        name=data["name"].strip(),
+        race_id=race_ref.id,
+        class_id=cls_ref.id,
+        background_id=bg_ref.id,
+        hit_die=cls_ref.hit_die,          # ensure hit_die is set
+    )
+
+    db.session.add(char)
+    db.session.flush()  # get char.id
+
+    # Abilities (convert strings to ints)
+    abilities_raw = data["abilities"]
+    abilities = {k: int(v) for k, v in abilities_raw.items()}
+
+    for mod in race_ref.modifiers:
+        ability = mod.ability.lower()
+        if ability in abilities:
+            abilities[ability] += mod.value
+
+    abilities_model = CharacterAbilities(
+        character_id=char.id,
+        **abilities
+    )
+    db.session.add(abilities_model)
+
+    # HP / State
+    con_mod = (abilities["constitution"] - 10) // 2
+    max_hp = cls_ref.base_hp + con_mod
+
+    state = CharacterState(
+        character_id=char.id,
+        current_hp=max_hp,
+        hit_dice_remaining=1,
+        exhaustion=0,
+        deathroll_successes=0,
+        deathroll_failures=0,
+        current_spellslots=cls_ref.spellslots or 0
+    )
+    char.max_hp = max_hp
+
+    db.session.add(state)
+
+    # Skills: create ALL skills, mark selected as proficient
+    selected_skill_ids = set(data["skills"])  # e.g. [1, 3, 7]
+
+    all_skills = ReferenceSkill.query.all()
+    for ref_skill in all_skills:
+        db.session.add(
+            CharacterSkill(
+                character_id=char.id,
+                skill_id=ref_skill.id,
+                is_proficient=(ref_skill.id in selected_skill_ids)
+            )
+        )
+
+    db.session.commit()
+
+    return {"success": True, "character_id": char.id}
 
 
 
