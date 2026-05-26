@@ -320,4 +320,77 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+
+
+    // FINAL VALIDATION + CREATE CHARACTER
+    const createBtn = document.getElementById("create-character-btn");
+    const nameInput = document.getElementById("char-name");
+
+    // Re-run validation whenever anything changes
+    nameInput.addEventListener("input", validateReadyState);
+    raceSelect.addEventListener("change", validateReadyState);
+    classSelect.addEventListener("change", validateReadyState);
+    backgroundSelect.addEventListener("change", validateReadyState);
+    abilitySelects.forEach(sel => sel.addEventListener("change", validateReadyState));
+    skillCheckboxes.forEach(cb => cb.addEventListener("change", validateReadyState));
+
+    function validateReadyState() {
+        const nameOK = nameInput.value.trim().length > 0;
+        const raceOK = raceSelect.value !== "";
+        const classOK = classSelect.value !== "";
+        const backgroundOK = backgroundSelect.value !== "";
+
+        // All abilities assigned?
+        const abilitiesOK = Object.values(assignedScores).every(v => v !== null);
+
+        // Count class skills (not background)
+        const selectedClassSkills = [...skillCheckboxes].filter(cb =>
+            cb.checked && !cb.classList.contains("skill-background")
+        ).length;
+
+        const skillsOK = selectedClassSkills === maxClassSkills;
+
+        const allOK = nameOK && raceOK && classOK && backgroundOK && abilitiesOK && skillsOK;
+
+        if (allOK) {
+            createBtn.disabled = false;
+            createBtn.classList.remove("next-disabled");
+        } else {
+            createBtn.disabled = true;
+            createBtn.classList.add("next-disabled");
+        }
+    }
+
+    createBtn.addEventListener("click", () => {
+        if (createBtn.disabled) return;
+
+        const payload = {
+            name: nameInput.value.trim(),
+            race: raceSelect.value,
+            class: classSelect.value,
+            background: backgroundSelect.value,
+            abilities: assignedScores,
+            skills: [...skillCheckboxes]
+                .filter(cb => cb.checked)
+                .map(cb => Number(cb.dataset.skill))
+        };
+
+        fetch("/api/create_character", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                alert("Error: " + data.error);
+                return;
+            }
+
+            // Redirect to character sheet
+            window.location.href = `/character/${data.character_id}`;
+        });
+    });
+
+
 });

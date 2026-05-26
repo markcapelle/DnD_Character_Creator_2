@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Character, CharacterState, CharacterNotebook # Import all models
+from models import db, User, Character, CharacterState, CharacterNotebook, ReferenceRace, ReferenceClass, ReferenceBackground # Import all models
 from dotenv import load_dotenv
 import os
 
