@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let racialModifiers = {};  // ability → value
 
     raceSelect.addEventListener("change", () => {
+        playScribble();
+
         const key = raceSelect.value;
 
         if (!key) {
@@ -66,6 +68,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // CLASS SELECTION
     classSelect.addEventListener("change", () => {
+        playScribble();
+        
         const key = classSelect.value;
 
         // Reset everything when class changes
@@ -128,6 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // BACKGROUND SELECTION
     backgroundSelect.addEventListener("change", () => {
+        playScribble();
+        
         const key = backgroundSelect.value;
 
         resetAllSkillSelections();
@@ -236,6 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Listen for changes
     skillCheckboxes.forEach(cb => {
         cb.addEventListener("change", () => {
+            playScribble();
             enforceSkillLimit();
         });
     });
@@ -259,7 +266,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     abilitySelects.forEach(select => {
-        select.addEventListener("change", () => {
+            select.addEventListener("change", () => {
+            playScribble();
+
             const ability = select.dataset.ability;
             const newValue = select.value;
             const oldValue = assignedScores[ability];
@@ -364,6 +373,8 @@ document.addEventListener("DOMContentLoaded", () => {
     createBtn.addEventListener("click", () => {
         if (createBtn.disabled) return;
 
+        playPageFlip();
+        
         const payload = {
             name: nameInput.value.trim(),
             race: raceSelect.value,

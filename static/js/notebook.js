@@ -4,7 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".note-tab").forEach(tab => {
         tab.addEventListener("click", () => {
             flushAutosave();
-            
+            playPageFlip();
+
             const noteId = tab.dataset.noteId;
 
             // Highlight active tab
@@ -19,6 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         alert(data.error);
                         return;
                     }
+
+                    
 
                     // Show editor
                     document.getElementById("no-note-selected").style.display = "none";
@@ -52,6 +55,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const editor = document.getElementById("note-editor");
         const noteId = editor.dataset.activeNoteId;
         if (!noteId) return;
+
+        if (!sync) {
+            try {
+                playScribble();
+            } catch (e) {
+                console.warn("Save sound failed:", e);
+            }
+        }
 
         const title = document.getElementById("note-title-input").value;
         const content = document.getElementById("note-content-input").value;
@@ -97,7 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("add-note-tab").addEventListener("click", () => {
     
         flushAutosave(); // Save current note before creating a new one
-    
+        playPageFlip();
+
         const characterId = document.body.dataset.characterId;
     
         fetch(`/notebook/create/${characterId}`, {
@@ -167,6 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!confirmed) return;
 
         flushAutosave(); // Save any pending changes before deleting
+        playTear();
 
         fetch(`/notebook/delete/${noteId}`, {
             method: "POST"

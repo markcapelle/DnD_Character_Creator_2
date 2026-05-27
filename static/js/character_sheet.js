@@ -65,6 +65,7 @@ function openSpellbook(characterId) {
 
 // Adjust HP
 function adjustHP(direction) {
+    playScribble();
     fetch(`/hp/${direction}`, { method: "POST" })
         .then(res => res.json())
         .then(data => {
@@ -76,6 +77,7 @@ function adjustHP(direction) {
 // Hit Dice Tracker
 document.querySelectorAll(".hitdie-box").forEach(box => {
     box.addEventListener("click", () => {
+        playScribble();
         fetch(`/hitdice/toggle`, { method: "POST" })
             .then(res => res.json())
             .then(data => {
@@ -88,6 +90,7 @@ function updateHitDiceUI(remaining) {
     const box = document.querySelector(".hitdie-box");
     if (!box) return;
 
+    
     if (remaining === 0) {
         box.classList.add("active");
     } else {
@@ -98,6 +101,7 @@ function updateHitDiceUI(remaining) {
 // Death Saves Tracker
 document.querySelectorAll(".deathroll-box").forEach(box => {
     box.addEventListener("click", () => {
+        playScribble();
         const type = box.classList.contains("success") ? "success" : "fail";
         const index = parseInt(box.dataset.index, 10);
 
@@ -126,6 +130,7 @@ function updateDeathSavesUI(successes, failures) {
 // Exaustion Tracker
 document.querySelectorAll("#exhaustion-tracker .exhaustion-box").forEach(box => {
     box.addEventListener("click", () => {
+        playScribble();
         const index = parseInt(box.dataset.index, 10);
 
         fetch(`/exhaustion/${index}`, { method: "POST" })
@@ -146,6 +151,8 @@ function updateExhaustionUI(level) {
 // Spellslots Tracker
 document.querySelectorAll(".spellslot-box").forEach(box => {
     box.addEventListener("click", () => {
+        playScribble();
+        
         box.classList.toggle("active");
 
         // Count how many are active

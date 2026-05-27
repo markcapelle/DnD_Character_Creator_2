@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // LOAD CHARACTER
     document.querySelectorAll(".load-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
+            playPageFlip();
             const row = e.target.closest("tr");
             const characterId = row.dataset.characterId;
             window.location.href = `/character/${characterId}`;
@@ -15,6 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const row = e.target.closest("tr");
             const characterId = row.dataset.characterId;
 
+            const confirmed = confirm("Are you sure you want to delete this character?");
+            if (!confirmed) return;
+
+            playTear();
+            
             const res = await fetch(`/delete_character/${characterId}`, {
                 method: "DELETE"
             });
@@ -27,7 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // CREATE CHARACTER
     document.getElementById("new-character-btn").addEventListener("click", () => {
-        window.location.href = "/create_character";
+        playPageFlip();
+
+        setTimeout(() => {
+            window.location.href = "/create_character";
+        }, 500); // half‑second delay
     });
 
 });

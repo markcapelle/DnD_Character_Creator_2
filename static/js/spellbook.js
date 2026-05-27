@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
             p.style.display = idx === i ? "block" : "none";
         });
 
+        playPageFlip();
         updatePips();
     }
 
