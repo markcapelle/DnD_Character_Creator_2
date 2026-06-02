@@ -16,27 +16,35 @@
     <title>Register</title>
 </head>
 <body>
-    <h1>Register</h1>
-    
-    {% if error %}
-        {{ error }}
-    {% endif %}
-    <form action="/register" method="POST">
-        <label>Email:</label><br>
-        <input type="email" name="email" required><br><br>
+    <div class="auth-wrapper">
 
-        <label>Password:</label><br>
-        <input type="password" name="password1" required><br><br>
+        <h1>Register</h1>
 
-        <label>Confirm Password:</label><br>
-        <input type="password" name="password2" required><br><br>
+        {% if error %}
+            <p class="auth-error">{{ error }}</p>
+        {% endif %}
 
-        <button type="submit">Register</button>
-    </form>
+        <form action="/register" method="POST" class="auth-form">
 
-    <form action="/login" method="GET">
-        <button type="submit">Back</button>
-    </form>
+            <label>Email:</label><br>
+            <input type="email" name="email" class="auth-input" required><br><br>
+
+            <label>Password:</label><br>
+            <input type="password" name="password1" class="auth-input" required><br><br>
+
+            <label>Confirm Password:</label><br>
+            <input type="password" name="password2" class="auth-input" required><br><br>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="auth-buttons">
+            <form action="/login" method="GET">
+                <button type="submit">Back</button>
+            </form>
+        </div>
+
+    </div>
 
 </body>
 </html>

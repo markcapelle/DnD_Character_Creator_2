@@ -1,4 +1,51 @@
 
+/* AUTH PAGES (Login / Register) */
+.auth-wrapper {
+    max-width: 450px;
+    margin: 3rem auto;
+    padding: 1rem;
+    border: 2px solid #3a2f1d;
+    background: linear-gradient(#f7f1e1, #efe3c5);
+    background-blend-mode: multiply;
+    border-radius: 6px;
+}
+
+.auth-wrapper h1 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.auth-error {
+    color: crimson;
+    text-align: center;
+    font-weight: bold;
+}
+
+.auth-success {
+    color: green;
+    text-align: center;
+    font-weight: bold;
+}
+
+.auth-form {
+    text-align: center;
+}
+
+.auth-input {
+    width: 80%;
+    padding: 6px;
+    border: 1px solid #3a2f1d;
+    background: #fffdf8;
+    font-family: inherit;
+}
+
+.auth-buttons {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+
+
 
 #hitdice-tracker {
     display: flex;
