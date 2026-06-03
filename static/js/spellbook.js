@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const pipContainer = document.getElementById("spellbook-pips");
     let index = 0;
 
-    // --- Create pips dynamically ---
+    // Create pips dynamically
     pages.forEach((_, i) => {
         const pip = document.createElement("div");
         pip.classList.add("pip");
@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updatePips();
     }
 
-    // --- Button navigation ---
+    // Button navigation
     document.getElementById("next-spell").addEventListener("click", () => {
         index = (index + 1) % pages.length;
         showPage(index);
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showPage(index);
     });
 
-    // --- Keyboard navigation ---
+    // Keyboard navigation
     document.addEventListener("keydown", (event) => {
         switch (event.key) {
             case "ArrowRight":
